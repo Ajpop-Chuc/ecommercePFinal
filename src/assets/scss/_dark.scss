@@ -1,0 +1,368 @@
+/*====== Dark Layout Style Here ======*/
+$main: #000;
+$Box-bg-color: #2a2a2c;
+$border-color: #575757;
+$border-color-light:#474747;
+$paragraph: #7d7d7d;
+$white: #fff;
+$title: $white;
+$accent: #ff5722;
+
+.dark-mode {
+  background: $main;
+  color: $white;
+  .iron-cart-list-wrap .cart-menu-item .cart-content-wrap .cart-edit-action .button.icon-btn,
+  .iron-wish-list-wrap .cart-menu-item .cart-content-wrap .cart-edit-action .button.icon-btn,
+  .iron-partener-wrapper,
+  .badge-primary,
+  .iron-best-deal-wrap .btn-active,
+  .admin-header-wrap .humburger,
+  .iron-products-wrap .btn-primary,
+  .add-user-dialog .btn-primary,
+  .admin-collaboration .btn-primary {
+    background-color: $main !important;
+  }
+  .iron-social-icons li button,
+  .iron-social-icons li a {
+    background-color: $main;
+    border-color: $main;
+  }
+  .bg-base {
+    background-color: $Box-bg-color;
+  }
+  .iron-tnc-page-wrap .inner-container.bg-base,
+  .iron-privacy-policy-page-wrap .inner-container.bg-base,
+  .iron-faq-page-wrap .inner-container.bg-base,
+  .iron-page-not-found-wrap .inner-container.bg-base .rct-card-wrap,
+  .iron-forgot-pwd-page .inner-container.bg-base .iron-forgot-pwd-form,
+  .iron-sign-in-page-wrap .inner-container.bg-base .bg-base,
+  .iron-sign-up-page-wrap .inner-container.bg-base .bg-base,
+  .iron-thank-you-page-wrap .inner-container.bg-base .bg-base,
+  .iron-blog-page-wrap.inner-container.bg-base,
+  .iron-product-add-wrap .fileUploader .chooseFileButton:after,
+  .iron-product-edit-wrap .fileUploader .chooseFileButton:after,
+  .iron-product-item .iron-btn-grp .btn-wrap,
+  .bg-base .iron-partener-wrap-v2,
+  .product-detail-page .bg-base,
+  .iron-cart-wrapper.bg-base .rct-card-wrap,
+  .checkout-wrapper.bg-base .rct-card-wrap,
+  .payment-option-wrapper .iron-payment-accordion > div:nth-child(2),
+  .payment-option-wrapper .iron-payment-accordion .payment-title,
+  .iron-invoice-wrap .rct-card-wrap,
+  .iron-invoice-wrap .rct-card-wrap #payment-receipt,
+  .iron-team-grid-wrap.section-pad,
+  .about-alt-section.bg-secondary,
+  .admin-invoice-wrap > div:nth-child(3) > div .bg-secondary,
+  .iron-invoice-wrap .rct-card-wrap #payment-receipt .bg-secondary,
+  .iron-blog-nav {
+    background-color: $main;
+  }
+  a,
+  .iron-social-icons li button i,
+  .iron-social-icons li a i,
+  .error,
+  .iron-tab-bar .bg-base.color-grey button,
+  .iron-coupon-form button i,
+  .testimonial-v2 p,
+  .iron-accordion-wrap > div:first-child > div:nth-child(2),
+  .comment-item .author-content .primary-color,
+  .iron-user-info-wrap .user-info-links .links a,
+  .ReactTable .rt-tbody .rt-td .action-btn .primary-color,
+  .iron-products-wrap .btn-primary,
+  .iron-product-item .price-wrap span,
+  .admin-invoice-wrap > div:nth-child(3) > div span,
+  .admin-wrapper .product-list-wrap .ReactTable .rt-tbody .rt-td:nth-child(3),
+  .admin-wrapper .projects-icon .btn-icon,
+  .admin-wrapper .projects-icon .btn-icon.active {
+    color: $white;
+  }
+  .iron-accordion-wrap {
+    box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14),
+      0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+  }
+  .iron-search-box .search-form {
+    background-color: $paragraph;
+  }
+  .iron-coupon-form input::placeholder,
+  .iron-search-box .search-form input::placeholder {
+    color: $white !important;
+  }
+  .bg-primary,
+  .custom-box .rtl-box,
+  .iron-header-menu li .sub-menu,
+  .iron-header-menu li .sub-menu li > .sub-menu-child,
+  .testimonial-v1 .iron-testimonial-item .user-text,
+  .rct-card-wrap {
+    background: $Box-bg-color;
+    background-color: $Box-bg-color;
+  }
+  .bullets-list li:before,
+  .ais-RefinementList-checkbox:after,
+  .ais-NumericMenu-radio:after {
+    background: $white;
+  }
+  .bg-grey,
+  .iron-header-v3 .iron-header-top,
+  .iron-header-v3 .iron-header-middle,
+  .iron-header-v3 .iron-header-bottom,
+  .iron-features-v2 .iron-feature-icon span,
+  .iron-tab-content-v2 .iron-product-item .price-wrap-v2,
+  .iron-user-info-wrap .iron-shadow,
+  .admin-sidebar-wrap,
+  .dashboard-wrapper .iron-product-add-wrap,
+  .dashboard-wrapper .iron-product-edit-wrap,
+  .iron-progress-bar,
+  .iron-cta-v2-wrapper .iron-sec-heading-wrap,
+  .iron-partener-wrapper .iron-partener-wrap-v2,
+  .search-form-v3 .input-field,
+  .iron-cta-banner-wrapper,
+  .product-detail-page .bg-secondary,
+  .iron-cart-wrapper.bg-base,
+  .checkout-wrapper.bg-base,
+  .payment-option-wrapper,
+  .bg-secondary.m-sm-20,
+  .iron-forgot-pwd-page .inner-container,
+  .iron-tab-bar .bg-base.color-grey,
+  .payment-detail .header-mat-tab.bg-secondary,
+  .iron-card-radio .card-list,
+  .iron-thank-you-page-wrap .inner-container.bg-base,
+  .iron-page-not-found-wrap .inner-container.bg-base,
+  .iron-blog-detail-wrap,
+  .bg-secondary.iron-forgot-pwd-page .inner-container.bg-base,
+  .iron-sign-in-page-wrap .inner-container.bg-base,
+  .iron-sign-up-page-wrap .inner-container.bg-base,
+  .iron-reports-wrap .app-card,
+  .iron-contact-page .iron-contact-info-wrap {
+    background-color: $Box-bg-color;
+  }
+  .admin-header-wrap {
+    background-color: $Box-bg-color !important;
+  }
+  h1,
+  h1 a,
+  h2,
+  h2 a,
+  h3,
+  h3 a,
+  h4,
+  h4 a,
+  h5,
+  h5 a,
+  h6,
+  h6 a,
+  .iron-header-menu .mega-menu > .sub-menu > li > a,
+  .iron-header-menu li .sub-menu li a,
+  .admin-header-wrap .base-text span,
+  .admin-header-wrap .base-text i,
+  .iron-features-v1 .iron-features-content span,
+  .iron-tab-btn,
+  .iron-meta-info .meta-list:hover a,
+  .iron-header-v2 .iron-header-menu li a,
+  .iron-dropdown ul a,
+  .iron-dropdown ul li,
+  p.base-color,
+  .detail-content a,
+  .detail-content .dark-color,
+  .page-title-bar p,
+  .iron-view-cart-sidebar .side-cart-list .cart-content .title,
+  .iron-view-cart-sidebar .side-cart-list .cart-content .edit-cart a,
+  .iron-view-cart-sidebar .side-cart-list .cart-content .edit-cart button,
+  .side-cart-wrapper > div:nth-child(2) span,
+  .iron-forgot-pwd-form p,
+  .Transaction-table-wrap header button,
+  .iron-review-dialog .iron-user-list-wrap .user-list-item span {
+    color: $white;
+  }
+  .transparent-btn span {
+    color: $white !important;
+  }
+  p,
+  .testimonial-v1 .iron-testimonial-item p,
+  .iron-meta-info .meta-list a,
+  .iron-tnc-page p,
+  .iron-blog-page-wrap.inner-container.bg-base p,
+  .iron-cart-list-wrap .cart-menu-item span,
+  .iron-wish-list-wrap .cart-menu-item span,
+  .iron-cta-v2-wrapper a.secondary-color,
+  .iron-product-add-wrap .add-product-input textarea,
+  .iron-product-edit-wrap .add-product-input textarea,
+  .add-product-input .text-h3,
+  .iron-product-add-wrap .add-product-input input,
+  .iron-product-edit-wrap .add-product-input input {
+    color: $paragraph;
+  }
+  hr {
+    background-color: $border-color;
+  }
+  .iron-header-menu .mega-menu > .sub-menu > li > a,
+  .Transaction-table-wrap table th,
+  .Transaction-table-wrap table td,
+  .ReactTable .rt-tbody .rt-tr-group,
+  .ReactTable .rt-thead,
+  .custom-box .rtl-box,
+  .iron-cart-list-wrap .cart-menu-item,
+  .iron-wish-list-wrap .cart-menu-item,
+  .iron-tab-content-v2 .iron-product-item .post-action,
+  .iron-dwnld-app-wrapper .download-item:first-child,
+  .iron-view-cart-sidebar .side-cart-list {
+    border-color: $border-color;
+  }
+  .iron-features-v1 .iron-col:first-child,
+  .iron-features-v1 .iron-col:nth-child(2) {
+  }
+  .iron-features-v1 .iron-col:first-child,
+  .iron-features-v1 .iron-col:nth-child(2) {
+    border-right: 0px;
+  }
+  .iron-select-width2 > div:before,
+  .iron-select-width2 > div:after {
+    border-color: $white;
+  }
+  .search-form-v3 .input-field {
+    border-color: $transparent;
+    border-bottom-color: $white;
+    border-radius: 0;
+    &:after,
+    input::placeholder {
+      color: $white !important;
+    }
+    input {
+      color: $white;
+    }
+  }
+  .iron-features-wrap .iron-features-v2 .iron-features-post.iron-shadow,
+  .related-products-wrap .iron-product-item,
+  .iron-features-v1,
+  .iron-cta-v2-wrapper .iron-shop-item.iron-shadow,
+  .iron-partener-wrapper .iron-partener-wrap-v2.iron-shadow {
+    box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14),
+      0px 1px 3px 0px rgba(0, 0, 0, 0.12) !important;
+  }
+  .iron-banner-slider-v2 .iron-post-item .iron-overlay-wrap .iron-overlay-content .iron-overlay-holder,
+  .iron-banner-slider .iron-post-item .iron-overlay-wrap .iron-overlay-content .iron-overlay-holder {
+    h4,
+    h2,
+    h1 {
+      color: $main;
+    }
+  }
+  .iron-subscribe-box-v2 .center-icon,
+  .iron-payment-box a,
+  .user-image-upload .fileUploader .chooseFileButton:after {
+    color: $main;
+  }
+  .iron-tab-content-v2 .iron-product-item .iron-btn-grp .btn-wrap,
+  .iron-user-info-wrap .card-wrapper .iron-shadow,
+  .Transaction-table-wrap header {
+    background-color: $main;
+  }
+  .iron-select-width2 label,
+  .iron-select-width2 > div > div,
+  .card-wrapper .secondary-color,
+  .iron-product-add-wrap .fileUploader .chooseFileButton:after,
+  .iron-product-edit-wrap .fileUploader .chooseFileButton:after,
+  .iron-product-add-wrap i,
+  .iron-product-edit-wrap i,
+  .iron-product-add-wrap .add-text:after,
+  .iron-product-add-wrap .edit-text:after,
+  .iron-product-edit-wrap .add-text:after,
+  .iron-product-edit-wrap .edit-text:after,
+  .iron-product-add-wrap .text-h3 input,
+  .iron-product-edit-wrap .text-h3 input,
+  .ais-Panel-header,
+  .ais-RefinementList-labelText,
+  .ais-NumericMenu-labelText,
+  .iron-pagination-wrap .ais-Pagination-link,
+  .ais-Stats .ais-Stats-text,
+  .iron-tab-content-v2 .iron-product-item .post-action button span i,
+  .iron-tab-content-v2 .iron-product-item .post-action a span i {
+    color: $white;
+  }
+  .iron-select-width2 > div svg,
+  .iron-card-radio .card-list svg {
+    fill: $white;
+  }
+  .iron-forgot-pwd-page span a,
+  .iron-forgot-pwd-form p a,
+  .iron-sign-up-page-wrap span a,
+  .iron-product-add-wrap .active-input input,
+  .iron-product-edit-wrap .active-input input,
+  .iron-progress-bar svg {
+    color: $accent;
+  }
+  .iron-invoice-wrap .rct-card-wrap #payment-receipt .bg-secondary {
+    border-bottom: 1px solid $border-color;
+  }
+  .admin-sidebar-wrap .admin-menu li .link-active {
+    background-color: rgba($main, 0.7) !important;
+  }
+  .admin-sidebar-wrap .admin-menu li:last-child .link-active {
+    background-color: rgba($main, 0) !important;
+  }
+  .ReactTable .pagination-bottom .-pagination .-previous button,
+  .ReactTable .pagination-bottom .-pagination .-next button,
+  .ais-Pagination-link:hover,
+  .ais-Pagination-link:focus {
+    background-color: $white !important;
+    color: $main !important;
+  }
+  .dashboard-wrapper .iron-product-add-wrap,
+  .dashboard-wrapper .iron-product-edit-wrap {
+    padding-bottom: 20px;
+  }
+  //algolia
+  .iron-shop-wrapper .ais-Hits-list .iron-product-item .iron-overlay-wrap {
+    background-color: $white;
+  }
+  //sweetalert
+  .sweet-alert {
+    background-color: $Box-bg-color !important;
+    > div > div {
+      &:first-child,
+      &:last-child {
+        background: $Box-bg-color !important;
+      }
+      &:nth-child(4) {
+        border-color: rgba(92, 184, 92, 1) !important;
+      }
+      &:nth-child(5) {
+        background-color: $transparent !important;
+      }
+    }
+    .text-muted.lead {
+      color: $white !important;
+    }
+    .btn-warning {
+      box-shadow: none !important;
+    }
+  }
+  //footer
+  .iron-footer-v1 .footer-hr {
+    border-color: $border-color;
+  }
+  .transparent-btn {
+    border: 2px solid  !important;
+    &:hover {
+      background: $border-color;
+    }
+  }
+  .subscribe-form .subscribe-input > div::before,
+  .subscribe-form-v2 .subscribe-input > div::before {
+    border-color: $border-color !important;
+  }
+  .iron-cta-v2-wrapper .iron-shop-item.iron-shadow {
+    border: 1px solid $border-color-light;
+  }
+  .iron-header-v3 .iron-header-top {
+    border-bottom: 1px solid $border-color-light;
+  }
+  .search-form-v3 .input-field {
+    border-bottom-color: $border-color;
+  }
+  .iron-features-wrap .iron-features-v2 .iron-features-post.iron-shadow {
+    border: 1px solid $border-color;
+  }
+  .MuiFormControl-root > div::before {
+	border-color: $border-color;
+}
+}
