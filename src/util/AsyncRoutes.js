@@ -214,6 +214,18 @@ const AsyncProfileDetailComponent = Loadable({
    loading: () => <ContentLoader />,
 });
 
+//usuarios ---------------------
+const usuariosComponent = Loadable({
+   loader: () => import('../routes/admin-panel/usuarios/usuarios-add'),
+   loading: () => <ContentLoader />,
+});
+
+const usuariosAddComponent = Loadable({
+   loader: () => import('../routes/admin-panel/usuarios'),
+   loading: () => <ContentLoader />,
+});
+
+
 export {
    AsyncHomePageOneComponent,
    AsyncHomePageTwoComponent,
@@ -249,5 +261,7 @@ export {
    AsyncProfileDetailComponent,
    AsyncVendedorComponent,
    AsyncVendedorAddComponent,
-   AsyncPageNotFoundComponent
+   AsyncPageNotFoundComponent,
+   usuariosComponent,
+   usuariosAddComponent
 }

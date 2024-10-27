@@ -60,5 +60,22 @@ export default [
       "path": "/",
       "icon": "home",
       "child_routes": null
-   }, 
+   },
+   {
+      "menu_title": "Usuarios",
+      "path": "#",
+      "icon": "account_circle",
+      "child_routes": [
+         {
+            "path": "/admin-panel/admin/usuarios",
+            "menu_title": "Ver usuarios",
+            "icon": "arrow_right_alt"
+         },
+         {
+            "path": "/admin-panel/admin/usuarios-add",
+            "menu_title": "Crear usuario",
+            "icon": "arrow_right_alt"
+         }
+      ]
+   }
 ]   
