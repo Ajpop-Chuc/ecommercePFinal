@@ -10,6 +10,16 @@ const UserPopup = ({ user, onSave, onDelete }) => {
     setUserData(user); // Cargar los datos iniciales del usuario
   }, [user]);
 
+  // Obtener el token del localStorage
+  const token = localStorage.getItem('token'); // Cambia 'your_token_key' por la clave real del token en el localStorage
+
+  // Configurar el token de autorización en las solicitudes de Axios
+  const axiosInstance = axios.create({
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
   const handleClickOpen = () => setOpen(true);
   const handleClose = () => {
     setUserData(user); // Restablecer datos al original al cerrar
@@ -29,25 +39,12 @@ const UserPopup = ({ user, onSave, onDelete }) => {
   const handleSave = async () => {
     try {
       const { _id, ...updateData } = userData;
-      const response = await axios.put(`http://127.0.0.1:4000/api/users/${_id}`, updateData);
+      const response = await axiosInstance.put(`http://127.0.0.1:4000/api/users/${_id}`, updateData);
       
       if (onSave) onSave(response.data); // Llamar a onSave después de guardar
       handleClose();
     } catch (error) {
       console.error("Error updating user:", error);
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      const response = await axios.delete(`http://127.0.0.1:4000/api/users/${userData._id}`);
-      
-      if (response.status === 200) {
-        if (onDelete) onDelete(userData._id); // Llamar a onDelete para actualizar la lista en el componente padre
-        handleClose();
-      }
-    } catch (error) {
-      console.error("Error deleting user:", error);
     }
   };
 
@@ -142,9 +139,6 @@ const UserPopup = ({ user, onSave, onDelete }) => {
           <div className="p-sm-30 p-15 d-sm-flex justify-content-between align-items-center">
             <Button className="button btn-active btn-lg mb-20 mr-20" onClick={handleSave}>
               Guardar Cambios
-            </Button>
-            <Button className="button btn-delete btn-lg mb-20 mr-20" onClick={handleDelete}>
-              Eliminar Usuario
             </Button>
             <Button className="button btn-active btn-lg mb-20" onClick={handleClose}>
               Cancelar

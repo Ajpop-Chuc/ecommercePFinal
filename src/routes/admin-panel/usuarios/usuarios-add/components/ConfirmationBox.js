@@ -1,10 +1,21 @@
 import React from 'react';
 import { Button, Dialog, DialogActions, DialogContent } from '@material-ui/core';
+import axios from 'axios';
 
 class ConfirmationBox extends React.Component {
   state = {
     open: false,
   };
+
+  // Obtener el token del localStorage
+  token = localStorage.getItem('token'); // Cambia 'your_token_key' por la clave real del token en el localStorage
+
+  // Crear una instancia de axios con el encabezado de autorización
+  axiosInstance = axios.create({
+    headers: {
+      Authorization: `Bearer ${this.token}`,
+    },
+  });
 
   // Abre el cuadro de diálogo de confirmación
   openDialog = () => {
@@ -17,9 +28,19 @@ class ConfirmationBox extends React.Component {
   };
 
   // Maneja la respuesta del usuario y cierra el cuadro de diálogo
-  onCloseDialog = (isTrue) => {
+  onCloseDialog = async (isTrue) => {
     this.setState({ open: false });
-    this.props.onConfirm(isTrue); // Llama a la función onConfirm con la respuesta
+    if (isTrue) {
+      try {
+        // Ejemplo de solicitud de eliminación (reemplaza 'user_id' y la URL según tus necesidades)
+        const response = await this.axiosInstance.delete(`http://127.0.0.1:4000/api/users/${this.props.userId}`);
+        this.props.onConfirm(response.status === 200);
+      } catch (error) {
+        console.error("Error deleting user:", error);
+      }
+    } else {
+      this.props.onConfirm(false);
+    }
   };
 
   render() {

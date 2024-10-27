@@ -15,7 +15,8 @@ import {
    AsyncVendedorAddComponent,
    AsyncVendedorComponent,
    usuariosComponent,
-   usuariosAddComponent
+   usuariosAddComponent,
+   proveedoresComponent
 } from '../../util/AsyncRoutes';
 
 const AdminPanel = ({ match }) => {
@@ -34,6 +35,7 @@ const AdminPanel = ({ match }) => {
             <Route path={`${match.url}/vendedor-add`} component={AsyncVendedorAddComponent} />
             <Route path={`${match.url}/usuarios-add`} component={usuariosComponent} />
             <Route path={`${match.url}/usuarios`} component={usuariosAddComponent} />
+            <Route path={`${match.url}/proveedores`} component={proveedoresComponent} />
          </Switch>
       </div>
    )

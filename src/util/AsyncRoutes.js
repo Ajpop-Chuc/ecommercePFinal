@@ -225,6 +225,11 @@ const usuariosAddComponent = Loadable({
    loading: () => <ContentLoader />,
 });
 
+const proveedoresComponent = Loadable({
+   loader: () => import('../routes/admin-panel/usuarios'),
+   loading: () => <ContentLoader />,
+});
+
 
 export {
    AsyncHomePageOneComponent,
@@ -263,5 +268,6 @@ export {
    AsyncVendedorAddComponent,
    AsyncPageNotFoundComponent,
    usuariosComponent,
-   usuariosAddComponent
+   usuariosAddComponent,
+   proveedoresComponent
 }

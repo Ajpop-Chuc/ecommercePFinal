@@ -77,5 +77,11 @@ export default [
             "icon": "arrow_right_alt"
          }
       ]
+   },
+   {
+      "menu_title": "Proveedores",
+      "path": "/admin-panel/admin/proveedores",
+      "icon": "home",
+      "child_routes": null
    }
 ]   

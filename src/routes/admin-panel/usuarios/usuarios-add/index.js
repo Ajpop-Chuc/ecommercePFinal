@@ -65,7 +65,7 @@
                       </Grid>
                       <Grid item xs={12} sm={12} md={6} lg={6} className="py-0">
                          <div className="detail-content">
-                            <Link to="/admin-panel/admin/users" className="text-14 d-inline-block font-medium py-10 mb-10">Ver usuarios</Link>
+                            <Link to="/admin-panel/admin/usuarios" className="text-14 d-inline-block font-medium py-10 mb-10">Ver usuarios</Link>
                             <form className="user-values">
                                <div className="mb-10">
                                   <h6 className="text-14 mb-0 add-text">Nombres:</h6>
@@ -136,7 +136,7 @@
                                >
                                   Registrar
                                </Button>
-                               <Link to="/admin-panel/admin/users" style={{ textDecoration: 'none' }}>
+                               <Link to="/admin-panel/admin/usuarios" style={{ textDecoration: 'none' }}>
                                     <Button className="button btn-base btn-lg mb-20 mb-sm-0">
                                       Cancelar
                                     </Button>
