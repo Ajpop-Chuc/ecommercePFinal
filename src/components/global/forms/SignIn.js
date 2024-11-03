@@ -40,10 +40,19 @@ class SignIn extends React.Component {
             console.log('Inicio de sesión exitoso:', data);
 
             // Guardar el token en localStorage con Bearer
+            localStorage.clear();
             localStorage.setItem('token', `Bearer ${data.token}`);
+            localStorage.setItem('userId', data.user.id);
+            localStorage.setItem('usertype', data.user.type);
+            localStorage.setItem('userName', data.user.name + " " +data.user.lastName);
 
             // Redirigir a otra página después de inicio de sesión exitoso
-            this.props.history.push('/admin-panel/admin');
+            if(data.user.type === "customer"){
+                this.props.history.push('/home-one');
+            }
+            else{
+                this.props.history.push('/admin-panel/admin');
+            }
 
         } catch (error) {
             this.setState({ error: error.message });
