@@ -10,7 +10,7 @@ import ContentLoader from '../components/global/loaders/ContentLoader';
 
 // Home one
 const AsyncHomePageOneComponent = Loadable({
-   loader: () => import('../routes/home-two'),
+   loader: () => import('../routes/home'),
    loading: () => <ContentLoader />
 
 });

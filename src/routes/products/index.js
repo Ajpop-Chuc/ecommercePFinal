@@ -1,254 +1,311 @@
-/**
- * product detail page
- */
-/* eslint-disable */
-import React, { Fragment } from 'react';
-import { Grid, Button } from '@material-ui/core';
-import IconButton from "@material-ui/core/IconButton";
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import CardMedia from '@material-ui/core/CardMedia';
-import { Link } from 'react-router-dom';
-
-//connect to store
+import React, { useState, useEffect } from 'react';
+import { 
+  Grid, 
+  Button, 
+  IconButton, 
+  Card, 
+  CardContent, 
+  CardMedia,
+  Typography,
+  Container,
+  Box,
+  CircularProgress
+} from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import { Link, useParams } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { 
+  Favorite, 
+  FavoriteBorder, 
+  ShoppingCart, 
+  Visibility,
+  ArrowForward 
+} from '@material-ui/icons';
 
-//firebase
-import firebase from '../../firebase';
-import 'firebase/database';
-
-//component
+// Components
 import RatingStar from '../../components/widgets/RatingStar';
 import CurrencyIcon from '../../components/global/currency/CurrencyIcon';
 import PostDetail from '../../components/templates/post-detail';
-
-//page title
 import PageTitle from '../../components/widgets/PageTitle';
-
-// actions
-import { addProductItem, showAlert, addToWishlist } from "../../actions/action";
-
-// helpers
-import { isProductExist, productExitsInWishlist } from "../../helpers";
 import ContentLoader from '../../components/global/loaders/ContentLoader';
 
+// Actions
+import { addProductItem, showAlert, addToWishlist } from "../../actions/action";
 
-function ProductList(props) {
+// Helpers
+import { isProductExist, productExitsInWishlist } from "../../helpers";
 
-   const { data, onProductAddToCart, onProductAddToWhislist } = props;
+const useStyles = makeStyles((theme) => ({
+  root: {
+    backgroundColor: theme.palette.background.default
+  },
+  productCard: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+    '&:hover': {
+      transform: 'translateY(-4px)',
+      boxShadow: theme.shadows[4]
+    }
+  },
+  mediaWrapper: {
+    position: 'relative',
+    paddingTop: '100%', // 1:1 Aspect ratio
+    backgroundColor: theme.palette.grey[100],
+    '&:hover $mediaOverlay': {
+      opacity: 1
+    }
+  },
+  media: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover'
+  },
+  mediaOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    opacity: 0,
+    transition: 'opacity 0.2s ease',
+    display: 'flex',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-end',
+    padding: theme.spacing(1)
+  },
+  favoriteButton: {
+    backgroundColor: theme.palette.background.paper,
+    '&:hover': {
+      backgroundColor: theme.palette.background.paper
+    }
+  },
+  content: {
+    flexGrow: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    padding: theme.spacing(2)
+  },
+  productName: {
+    marginBottom: theme.spacing(1),
+    fontWeight: 500,
+    color: theme.palette.text.primary,
+    textDecoration: 'none',
+    '&:hover': {
+      color: theme.palette.primary.main
+    }
+  },
+  priceRating: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: theme.spacing(2)
+  },
+  price: {
+    color: theme.palette.primary.main,
+    fontWeight: 600,
+    fontSize: '1.1rem'
+  },
+  cartButton: {
+    marginTop: 'auto',
+    alignSelf: 'flex-end'
+  },
+  relatedSection: {
+    backgroundColor: theme.palette.grey[50],
+    padding: theme.spacing(6, 0)
+  },
+  sectionTitle: {
+    textAlign: 'center',
+    marginBottom: theme.spacing(4),
+    '& h2': {
+      fontWeight: 600,
+      marginBottom: theme.spacing(1)
+    }
+  },
+  showAllButton: {
+    marginTop: theme.spacing(4)
+  }
+}));
 
-   return (
-      <Grid item xs={12} sm={6} md={6} lg={3} className="mb-30 py-0">
-         <Card className="iron-product-item">
-            <div className="iron-overlay-wrap overflow-hidden d-flex justify-content-center align-items-center">
-               <Link to={`/products/${data.type}/${data.objectID}`} className='d-block'>
-                  <CardMedia
-                     height="140"
-                     component="img"
-                     image={require(`../../assets/images/${data.image}`).default}
-                  />
-               </Link>
-               <div className="iron-overlay-content d-flex justify-content-end align-items-start">
-                  <div className="iron-overlay-holder">
-                     {!productExitsInWishlist(data.objectID) ?
-                        <Button
-                           onClick={onProductAddToWhislist}
-                        >
-                           <i className="material-icons">favorite</i>
-                        </Button>
-                        :
-                        <Button
-                           className="active"
-                        >
-                           <i className="material-icons">favorite</i>
-                        </Button>
-                     }
-                  </div>
-               </div>
-            </div>
-            <CardContent className="iron-product-content p-20 border">
-               <h5 className="text-truncate"><Link to={`/products/${data.type}/${data.objectID}`}>{data.name}</Link></h5>
-               <div className="d-flex justify-content-between align-items-center">
-                  <div className="price-wrap">
-                     <span><CurrencyIcon /> {data.price}</span>
-                  </div>
-                  <RatingStar></RatingStar>
-               </div>
-               <div className="iron-btn-grp">
-                  {!isProductExist(data.objectID) ?
-                     (
-                        <IconButton className="btn-wrap" onClick={onProductAddToCart}>
-                           <i className="material-icons">shopping_cart</i>
-                        </IconButton>
-                     )
-                     :
-                     (
-                        <Link to='/cart'>
-                           <IconButton className="btn-wrap">
-                              <i className="material-icons">visibility</i>
-                           </IconButton>
-                        </Link>
-                     )
-                  }
-               </div>
-            </CardContent>
-         </Card>
-      </Grid>
-   );
+function ProductList({ data, onProductAddToCart, onProductAddToWhislist }) {
+  const classes = useStyles();
+
+  return (
+    <Grid item xs={12} sm={6} md={6} lg={3}>
+      <Card className={classes.productCard}>
+        <div className={classes.mediaWrapper}>
+          <Link to={`/products/${data._id}`}>
+            <CardMedia
+              component="img"
+              className={classes.media}
+              image={data.images[0]}
+              title={data.name}
+            />
+          </Link>
+          <div className={classes.mediaOverlay}>
+            <IconButton 
+              className={classes.favoriteButton}
+              onClick={onProductAddToWhislist}
+              size="small"
+            >
+              {productExitsInWishlist(data._id) ? 
+                <Favorite color="secondary" /> : 
+                <FavoriteBorder />
+              }
+            </IconButton>
+          </div>
+        </div>
+        <CardContent className={classes.content}>
+          <Link to={`/products/${data._id}`} className={classes.productName}>
+            <Typography variant="h6" noWrap>
+              {data.name}
+            </Typography>
+          </Link>
+          <div className={classes.priceRating}>
+            <Typography className={classes.price}>
+              <CurrencyIcon /> {data.price}
+            </Typography>
+            <RatingStar />
+          </div>
+          <div className={classes.cartButton}>
+            {!isProductExist(data._id) ? (
+              <IconButton 
+                color="primary" 
+                onClick={onProductAddToCart}
+              >
+                <ShoppingCart />
+              </IconButton>
+            ) : (
+              <IconButton 
+                component={Link} 
+                to='/cart' 
+                color="primary"
+              >
+                <Visibility />
+              </IconButton>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </Grid>
+  );
 }
 
-class ProductDetail extends React.Component {
+function ProductDetail({ addProductItem, showAlert, addToWishlist }) {
+  const classes = useStyles();
+  const [product, setProduct] = useState(null);
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { id } = useParams();
 
-   constructor(props) {
-      super(props);
-      this.state = {
-         allProducts: [],
-         productId: parseInt(this.props.match.params.id),
-         productType: this.props.match.params,
-         currentDataItem: null,
-         relatedproduct: []
-      }
-   }
+  useEffect(() => {
+    fetchProduct();
+  }, [id]);
 
-   componentDidMount() {
-      this.getProducts();
-   }
+  const fetchProduct = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`http://127.0.0.1:4000/api/products/${id}`);
+      const data = await response.json();
+      setProduct(data);
+      
+      const relatedResponse = await fetch(
+        `http://127.0.0.1:4000/api/products?category=${data.category}&limit=4`
+      );
+      const relatedData = await relatedResponse.json();
+      setRelatedProducts(relatedData.filter(item => item._id !== id));
+    } catch (error) {
+      console.error('Error fetching product:', error);
+      showAlert('Error loading product details', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-   //getproducts
-   getProducts() {
-      const allProductsRef = firebase.database().ref('products');
-      allProductsRef.on('value', (snapshot) => {
-         let allProducts = snapshot.val();
-         let newTypeData = allProducts[this.state.productType.type];
-         this.setState({
-            relatedproduct: newTypeData
-         })
-         let newState = ((allProducts.men.concat(allProducts.women)).concat(allProducts.gadgets)).concat(allProducts.accessories);
-         this.setState({
-            allProducts: newState
-         });
-         this.getProductItem(newState);
-      });
-   }
+  const onAddToCart = (dataItem) => {
+    addProductItem(dataItem);
+    showAlert('Your product is successfully added!', 'success');
+  };
 
-   getProductItem(allProducts) {
-      let { productId } = this.state;
-      if (allProducts && allProducts.length > 0) {
-         for (let Item of allProducts) {
-            if (Item.objectID === productId) {
-               this.setState({
-                  currentDataItem: Item
-               })
-            }
-         }
-      }
-   }
+  const addProductToWishList = (dataItem) => {
+    addToWishlist(dataItem);
+    showAlert('Your product is successfully added to wishlist', 'success');
+  };
 
-   componentDidUpdate(prevProps) {
-      let newId = this.props.match.params.id;
-      if (prevProps.match.params.id !== this.props.match.params.id) {
-         this.updateProductData(newId);
-      }
-   }
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
 
-   updateProductData(newId) {
-      let Id = parseInt(newId)
-      let { allProducts } = this.state;
-      if (allProducts && allProducts.length > 0) {
-         for (let Item of allProducts) {
-            if (Item.objectID === Id) {
-               this.setState({
-                  currentDataItem: Item
-               })
-               break;
-            }
-         }
-      }
-   }
+  if (!product) {
+    return <ContentLoader />;
+  }
 
-   //add product to cart
-   onAddToCart(dataItem) {
-      this.props.addProductItem(dataItem);
-      setTimeout(() => {
-         this.props.showAlert('Your product Is Successfully added!', 'success')
-      }, 500)
-   }
+  return (
+    <div className={classes.root}>
+      <PageTitle title="Product Details" />
+      
+      <Container maxWidth="lg">
+        <Box mb={6}>
+          <PostDetail data={product} />
+        </Box>
+      </Container>
 
-   //add product to wishlist
-   addProductToWishList(dataItem) {
-      this.props.addToWishlist(dataItem);
-      setTimeout(() => {
-         this.props.showAlert('Your product Is Successfully added in whislist', 'success')
-      }, 500)
-   }
+      <div className={classes.relatedSection}>
+        <Container maxWidth="lg">
+          <div className={classes.sectionTitle}>
+            <Typography variant="h4" component="h2">
+              You Might Also Like
+            </Typography>
+            <Typography variant="body1" color="textSecondary">
+              Check out these related products
+            </Typography>
+          </div>
 
-   render() {
+          <Grid container spacing={4}>
+            {relatedProducts.map((dataItem) => (
+              <ProductList
+                key={dataItem._id}
+                data={dataItem}
+                onProductAddToCart={() => onAddToCart(dataItem)}
+                onProductAddToWhislist={() => addProductToWishList(dataItem)}
+              />
+            ))}
+          </Grid>
 
-      const { currentDataItem, relatedproduct } = this.state;
-      return (
-         <Fragment>
-            {currentDataItem !== null ?
-               <div className="product-detail-page" >
-                  <PageTitle
-                     title="product details"
-                  />
-                  <div className="inner-container">
-                     <div className="bg-base section-pad">
-                        <div className="container">
-                           <Grid container spacing={0}>
-                              <Grid item lg={12} className="mx-auto">
-                                 {currentDataItem !== null &&
-                                    <PostDetail
-                                       data={currentDataItem}
-                                    />
-                                 }
-                              </Grid>
-                           </Grid>
-                        </div>
-                     </div>
-                     <div className="bg-secondary section-gap related-products-wrap">
-                        <div className="container">
-                           <div className="block-title text-center mb-50">
-                              <h2>You Might Also Like</h2>
-                           </div>
-                           <Grid container spacing={4} className="iron-product-wrap my-0">
-                              {
-                                 relatedproduct.slice(0, 4).map((dataItem, index) => {
-                                    return (
-                                       <ProductList
-                                          key={index}
-                                          data={dataItem}
-                                          onProductAddToCart={() => this.onAddToCart(dataItem)}
-                                          onProductAddToWhislist={() => this.addProductToWishList(dataItem)}
-                                       />
-                                    )
-                                 })
-                              }
-                           </Grid>
-                           <div className="text-center mt-30">
-                              <Link to="/shop">
-                                 <Button className="button btn-base">show all</Button>
-                              </Link>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-               :
-               <ContentLoader />
-            }
-         </Fragment>
-      )
-   }
+          <Box display="flex" justifyContent="center" className={classes.showAllButton}>
+            <Button
+              component={Link}
+              to="/accessories"
+              variant="contained"
+              color="primary"
+              endIcon={<ArrowForward />}
+              size="large"
+            >
+              Ver todos los productos
+            </Button>
+          </Box>
+        </Container>
+      </div>
+    </div>
+  );
 }
 
 const mapStateToProps = ({ ecommerce }) => {
-   const { cart } = ecommerce;
-   return { cart };
-}
+  const { cart } = ecommerce;
+  return { cart };
+};
 
 export default connect(mapStateToProps, {
-   addToWishlist,
-   addProductItem,
-   showAlert
+  addToWishlist,
+  addProductItem,
+  showAlert
 })(ProductDetail);

@@ -1,17 +1,13 @@
-/**
- * post detail component
-*/
-/* eslint-disable */
-import React, { Fragment } from 'react';
+import React, { useState, useRef } from 'react';
 import { Grid, Button } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-
-//connect to store
+import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
+import { getImageUrl } from '../../../util/imageUtils';
 
 //components
 import SocialIcons from '../../widgets/SocialIcons';
@@ -24,299 +20,371 @@ import { addProductItem, showAlert, addToWishlist } from "../../../actions/actio
 // helpers
 import { isProductExist, productExitsInWishlist } from "../../../helpers";
 
-class PostDetail extends React.Component {
-
-   constructor(props) {
-      super(props);
-      this.reviewDialog = React.createRef();
-   }
-
-   state = {
-      newImage: this.props.data.image,
-      variations: {
-         color: '',
-         size: '',
-         quantity: ''
-      },
-      data: this.props.data
-   }
-
-   componentDidMount() {
-      this.setState({
-         newImage: this.props.data.image,
-         data: this.props.data
-      })
-   }
-
-   componentDidUpdate() {
-      this.updateData();
-   }
-
-   //update state data
-   updateData() {
-      let { data } = this.state;
-      let newData = this.props.data;
-      if (data.objectID !== newData.objectID) {
-         this.setState({
-            newImage: newData.image,
-            data: newData
-         })
+const useStyles = makeStyles((theme) => ({
+  root: {
+    padding: theme.spacing(3),
+  },
+  productGallery: {
+    display: 'flex',
+    gap: theme.spacing(2),
+  },
+  galleryNav: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(1),
+  },
+  galleryItem: {
+    border: `1px solid ${theme.palette.grey[300]}`,
+    borderRadius: theme.shape.borderRadius,
+    overflow: 'hidden',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    '&:hover': {
+      borderColor: theme.palette.primary.main,
+    },
+    '& img': {
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover',
+    }
+  },
+  mainImage: {
+    border: `1px solid ${theme.palette.grey[300]}`,
+    borderRadius: theme.shape.borderRadius,
+    overflow: 'hidden',
+    boxShadow: theme.shadows[1],
+    '& img': {
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover',
+    }
+  },
+  detailContent: {
+    padding: theme.spacing(2),
+  },
+  backLink: {
+    color: theme.palette.text.secondary,
+    textDecoration: 'none',
+    fontSize: 14,
+    marginBottom: theme.spacing(2),
+    display: 'inline-block',
+    '&:hover': {
+      color: theme.palette.primary.main,
+    }
+  },
+  productTitle: {
+    margin: theme.spacing(2, 0),
+    fontSize: '1.75rem',
+    fontWeight: 600,
+  },
+  price: {
+    color: theme.palette.primary.main,
+    fontSize: '1.5rem',
+    fontWeight: 600,
+    margin: theme.spacing(2, 0),
+  },
+  infoList: {
+    listStyle: 'none',
+    padding: 0,
+    margin: theme.spacing(2, 0),
+    '& li': {
+      marginBottom: theme.spacing(1),
+      fontSize: 14,
+      '& .label': {
+        fontWeight: 500,
+        marginRight: theme.spacing(1),
       }
-   }
+    }
+  },
+  description: {
+    color: theme.palette.text.secondary,
+    marginBottom: theme.spacing(3),
+    lineHeight: 1.6,
+  },
+  specifications: {
+    marginBottom: theme.spacing(3),
+    '& h4': {
+      marginBottom: theme.spacing(2),
+    },
+    '& ul': {
+      listStyle: 'none',
+      padding: 0,
+      '& li': {
+        marginBottom: theme.spacing(1),
+        fontSize: 14,
+      }
+    }
+  },
+  variationsForm: {
+    display: 'flex',
+    gap: theme.spacing(2),
+    marginBottom: theme.spacing(3),
+    '& .MuiFormControl-root': {
+      minWidth: 120,
+    }
+  },
+  actionButtons: {
+    marginBottom: theme.spacing(3),
+    '& .MuiButton-root': {
+      margin: theme.spacing(0, 1, 1, 0),
+    }
+  },
+  wishlistBtn: {
+    marginBottom: theme.spacing(2),
+  },
+  socialShare: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: theme.spacing(2),
+  }
+}));
 
-   //function for preview images
-   changePreviewImage(image) {
-      this.setState({
-         newImage: image
+function PostDetail({ data, addProductItem, addToWishlist, showAlert }) {
+   const classes = useStyles();
+   const [currentImage, setCurrentImage] = useState(data.images[0]);
+   const [variations, setVariations] = useState({
+      color: '',
+      size: '',
+      quantity: 1
+   });
+   const reviewDialog = useRef();
+
+   const changePreviewImage = (image) => {
+      setCurrentImage(image);
+   };
+
+   const changeProductVariation = (type, e) => {
+      setVariations({
+         ...variations,
+         [type]: e.target.value
       });
-   }
+   };
 
-   //function for product variation
-   changeProductVariation(type, e) {
-      this.setState({
-         variations: {
-            ...this.state.variations,
-            [type]: e.target.value
-         }
-      })
-   }
+   const postReviewOpen = () => {
+      reviewDialog.current.open();
+   };
 
-   //function for review popup ref.
-   postReviewOpen() {
-      this.reviewDialog.current.open();
-   }
-
-   //add product to wishlist
-   addProductToWishList(productdata) {
-      this.props.addToWishlist(productdata);
+   const addProductToWishList = (productData) => {
+      addToWishlist(productData);
       setTimeout(() => {
-         this.props.showAlert('Your product Is Successfully added in whislist', 'success')
-      }, 500)
-   }
+         showAlert('Your product is successfully added to wishlist', 'success')
+      }, 500);
+   };
 
-   // define function for add product in cart
-   onAddToCart(product) {
-      this.props.addProductItem(product);
+   const onAddToCart = (product) => {
+      const productWithVariations = {
+         ...product,
+         id: product._id || product.objectID || product.id,
+         image: product.images?.[0] || product.image || currentImage,
+         selectedVariations: variations
+      };
+      console.log('Adding product to cart:', productWithVariations);
+      addProductItem(productWithVariations);
       setTimeout(() => {
-         this.props.showAlert('Your product Is Successfully added in cart', 'success')
-      }, 500)
-   }
+         showAlert('Your product is successfully added to cart', 'success')
+      }, 500);
+   };
 
-   render() {
-      const { newImage } = this.state;
-      const { name, product_code, availablity, price, tags, desc, features, image_gallery, type, objectID } = this.state.data;
-      return (
-         < div >
-            <Grid container spacing={4} className="my-0">
-               <Grid item xs={12} sm={12} md={6} lg={6} className="py-0 mb-md-0 mb-sm-30">
-                  <Grid container spacing={3} className="iron-product-gallery">
-                     <Grid item xs={3} sm={2} md={2} lg={2}>
-                        <div className="product-gallery-nav">
-                           {image_gallery && image_gallery.map((gallery, index) => {
-                              return (
-                                 <div key={index} className="product-gallery-item">
-                                    <div>
-                                       <a href="#"
-                                          onMouseOver={() => this.changePreviewImage(gallery)}
-                                       >
-                                          <img
-                                             src={require(`../../../assets/images/${gallery}`).default}
-                                             alt="product-item"
-                                          />
-                                       </a>
-                                    </div>
-                                 </div>
-                              )
-                           })}
-                        </div>
-                     </Grid>
-                     <Grid item xs={9} sm={10} md={10} lg={10}>
-                        <div className="preview-full-image">
-                           <div className="iron-shadow product-gallery-item ">
-                              <div>
-                                 <a href="#">
-                                    <img
-                                       src={require(`../../../assets/images/${newImage}`).default}
-                                       alt="poster-image"
-                                    />
-                                 </a>
-                              </div>
-                           </div>
-                        </div>
-                     </Grid>
-                  </Grid>
-               </Grid>
-               <Grid item xs={12} sm={12} md={6} lg={6} className="py-0">
-                  <div className="detail-content">
-                     <Link to="/shop" className="text-14 d-inline-block mb-10">Back to shop</Link>
-                     <h3>{name}</h3>
-                     <div className="mb-15">
-                        <Button className="review-btn text-14 d-inline-block dark-color p-0" onClick={() => this.postReviewOpen()}>add a review</Button>
-                     </div>
+   const uniqueColors = [...new Set(data.variations.map(v => v.color))];
+   const uniqueSizes = [...new Set(data.variations.map(v => v.size))];
 
-                     <h4 className="active-color"><CurrencyIcon /> {price}</h4>
-                     <ul className="no-style mb-20">
-                        <li className="mb-10"><span className="font-medium text-14"> Availablity </span> :
-                                 {availablity ?
-                              <span className="text-14 ml-5">In Stocks</span>
-                              :
-                              null
-                           }
-                        </li>
-                        <li className="mb-10"><span className="font-medium text-14"> Product Code  </span> : <span className="text-14">{product_code}</span></li>
-                        <li className="mb-10"><span className="font-medium text-14"> Tags </span> :
-                                {tags && tags.map((tag, index) => {
-                              return (
-                                 <span key={index} className="text-14 ml-5">{tag}</span>
-                              )
-                           })}
-                        </li>
-                     </ul>
-                     <div className="short-desc">
-                        <p>{desc}</p>
-                     </div>
-                     <div>
-                        <ul className="bullets-list mb-0">
-                           {features && features.map((feature, index) => {
-                              return (
-                                 <li key={index} className="mb-10">{feature}</li>
-                              )
-                           })}
-                        </ul>
-                     </div>
-                     <div>
-                        <form className="product-values">
-                           {type === 'men' || type === 'women' ?
-                              <Fragment>
-                                 <FormControl className="iron-select-width2">
-                                    <InputLabel >color</InputLabel>
-                                    <Select
-                                       value={this.state.variations.color}
-                                       onChange={(e) => this.changeProductVariation('color', e)}
-                                       inputProps={{
-                                          name: 'age',
-                                       }}
-                                    >
-                                       <MenuItem value={'red'}>red</MenuItem>
-                                       <MenuItem value={'green'}>green</MenuItem>
-                                       <MenuItem value={'blue'}>blue</MenuItem>
-                                       <MenuItem value={'yellow'}>yellow</MenuItem>
-                                    </Select>
-                                 </FormControl>
-                                 <FormControl className="iron-select-width2">
-                                    <InputLabel>size</InputLabel>
-                                    <Select
-                                       value={this.state.variations.size}
-                                       onChange={(e) => this.changeProductVariation('size', e)}
-                                       inputProps={{
-                                          name: 'age',
-                                       }}
-                                    >
-                                       <MenuItem value={36}>36</MenuItem>
-                                       <MenuItem value={38}>38</MenuItem>
-                                       <MenuItem value={40}>40</MenuItem>
-                                       <MenuItem value={42}>42</MenuItem>
-                                       <MenuItem value={44}>44</MenuItem>
-                                       <MenuItem value={46}>46</MenuItem>
-                                       <MenuItem value={48}>48</MenuItem>
-                                    </Select>
-                                 </FormControl>
-                                 <FormControl className="iron-select-width2">
-                                    <InputLabel>quantity</InputLabel>
-                                    <Select
-                                       value={this.state.variations.quantity}
-                                       onChange={(e) => this.changeProductVariation('quantity', e)}
-                                       inputProps={{
-                                          name: 'age',
-                                       }}
-                                    >
-                                       <MenuItem value={1}>1</MenuItem>
-                                       <MenuItem value={2}>2</MenuItem>
-                                       <MenuItem value={3}>3</MenuItem>
-                                       <MenuItem value={4}>4</MenuItem>
-                                       <MenuItem value={5}>5</MenuItem>
-                                    </Select>
-                                 </FormControl>
-                              </Fragment>
-                              :
-                              <FormControl className="iron-select-width2">
-                                 <InputLabel>quantity</InputLabel>
-                                 <Select
-                                    value={this.state.variations.quantity}
-                                    onChange={(e) => this.changeProductVariation('quantity', e)}
-                                    inputProps={{
-                                       name: 'age',
-                                    }}
-                                 >
-                                    <MenuItem value={1}>1</MenuItem>
-                                    <MenuItem value={2}>2</MenuItem>
-                                    <MenuItem value={3}>3</MenuItem>
-                                    <MenuItem value={4}>4</MenuItem>
-                                    <MenuItem value={5}>5</MenuItem>
-                                 </Select>
-                              </FormControl>
-                           }
-                        </form>
-                     </div>
-                     <div className="mb-20">
-                        {!productExitsInWishlist(objectID) ?
-                           <Button
-                              onClick={() => this.addProductToWishList(this.state.data)}
-                              className="wishlist-btn text-14 d-inline-block dark-color"
-                           >
-                              Add To Wishlist
-                                    </Button>
-                           :
-                           <Button
-                              className="wishlist-btn text-14 d-inline-block dark-color"
-                           >
-                              Add To Wishlist
-                                    </Button>
-                        }
-
-                     </div>
-                     <div className="mb-sm-50 mb-20 detail-btns">
-                        {!isProductExist(objectID) ?
-                           (
-                              <Button
-                                 className="button btn-active btn-lg mr-15 mb-20 mb-sm-0"
-                                 onClick={() => this.onAddToCart(this.state.data)}
-                              >
-                                 add to cart
-                                        </Button>
-                           )
-                           :
-                           (
-                              <Link to='/cart'>
-                                 <Button
-                                    className="button btn-active btn-lg mr-15 mb-20 mb-sm-0"
-                                 >
-                                    view cart
-                                            </Button>
-                              </Link>
-                           )
-                        }
-
-                        <Button component={Link} to="/check-out" className="button btn-base btn-lg mb-20 mb-sm-0">buy now</Button>
-                     </div>
-                     <div className="d-flex justify-content-start align-items-center">
-                        <span className="d-inline-block mr-15 text-14">Share Now</span>
-                        <div className="detail-product-share">
-                           <SocialIcons></SocialIcons>
-                        </div>
-                     </div>
-                  </div>
-               </Grid>
+   return (
+      <div className={classes.root}>
+         <Grid container spacing={4}>
+            <Grid item xs={12} md={6}>
+            <div className={classes.galleryNav}>
+      {data.images.map((image, index) => (
+         <div 
+           key={index} 
+           className={classes.galleryItem}
+           onClick={() => changePreviewImage(image)}
+         >
+            <img 
+              src={getImageUrl(image)} 
+              alt={`product-item-${index}`}
+              onError={(e) => {
+                console.log('Error loading thumbnail:', image);
+                e.target.src = getImageUrl(null); // usa la imagen por defecto
+              }}
+            />
+         </div>
+      ))}
+   </div>
+   <div className={classes.mainImage}>
+      <img 
+        src={getImageUrl(currentImage)} 
+        alt="main-product"
+        onError={(e) => {
+          console.log('Error loading main image:', currentImage);
+          e.target.src = getImageUrl(null);
+        }}
+      />
+   </div>
             </Grid>
-            <ProductReview ref={this.reviewDialog} />
-         </div >
-      )
-   }
+
+            <Grid item xs={12} md={6}>
+               <div className={classes.detailContent}>
+                  <Link to="/shop" className={classes.backLink}>
+                     Back to shop
+                  </Link>
+                  
+                  <h1 className={classes.productTitle}>{data.name}</h1>
+                  
+                  <Button 
+                     onClick={postReviewOpen}
+                     variant="text"
+                     color="primary"
+                     size="small"
+                  >
+                     Add a review
+                  </Button>
+
+                  <div className={classes.price}>
+                     <CurrencyIcon /> {data.price}
+                  </div>
+
+                  <ul className={classes.infoList}>
+                     <li>
+                        <span className="label">Availability:</span>
+                        <span style={{ color: data.inventory > 0 ? 'green' : 'red' }}>
+                           {data.inventory > 0 ? `In Stock (${data.inventory} items)` : 'Out of Stock'}
+                        </span>
+                     </li>
+                     <li>
+                        <span className="label">Category:</span>
+                        {data.category}
+                     </li>
+                     <li>
+                        <span className="label">Tags:</span>
+                        {data.tags.map((tag, index) => (
+                           <span key={index} style={{ marginRight: 8 }}>{tag}</span>
+                        ))}
+                     </li>
+                  </ul>
+
+                  <p className={classes.description}>{data.description}</p>
+
+                  <div className={classes.specifications}>
+                     <h4>Specifications:</h4>
+                     <ul>
+                        {Object.entries(data.specifications).map(([key, value], index) => (
+                           <li key={index}>
+                              <strong>{key.replace('_', ' ')}</strong>: {value}
+                           </li>
+                        ))}
+                     </ul>
+                  </div>
+
+                  <div className={classes.variationsForm}>
+                     {data.variations && data.variations.length > 0 && (
+                        <>
+                           <FormControl variant="outlined">
+                              <InputLabel>Color</InputLabel>
+                              <Select
+                                 value={variations.color}
+                                 onChange={(e) => changeProductVariation('color', e)}
+                                 label="Color"
+                              >
+                                 {uniqueColors.map((color, index) => (
+                                    <MenuItem key={index} value={color}>{color}</MenuItem>
+                                 ))}
+                              </Select>
+                           </FormControl>
+                           <FormControl variant="outlined">
+                              <InputLabel>Size</InputLabel>
+                              <Select
+                                 value={variations.size}
+                                 onChange={(e) => changeProductVariation('size', e)}
+                                 label="Size"
+                              >
+                                 {uniqueSizes.map((size, index) => (
+                                    <MenuItem key={index} value={size}>{size}</MenuItem>
+                                 ))}
+                              </Select>
+                           </FormControl>
+                        </>
+                     )}
+                     <FormControl variant="outlined">
+                        <InputLabel>Quantity</InputLabel>
+                        <Select
+                           value={variations.quantity}
+                           onChange={(e) => changeProductVariation('quantity', e)}
+                           label="Quantity"
+                        >
+                           {[1, 2, 3, 4, 5].map((num) => (
+                              <MenuItem key={num} value={num}>{num}</MenuItem>
+                           ))}
+                        </Select>
+                     </FormControl>
+                  </div>
+
+                  <div className={classes.wishlistBtn}>
+                     {!productExitsInWishlist(data._id) ? (
+                        <Button
+                           onClick={() => addProductToWishList(data)}
+                           variant="outlined"
+                           color="primary"
+                        >
+                           Add To Wishlist
+                        </Button>
+                     ) : (
+                        <Button
+                           variant="outlined"
+                           disabled
+                        >
+                           Added To Wishlist
+                        </Button>
+                     )}
+                  </div>
+
+                  <div className={classes.actionButtons}>
+                     {!isProductExist(data._id) ? (
+                        <Button
+                           variant="contained"
+                           color="primary"
+                           size="large"
+                           onClick={() => onAddToCart(data)}
+                        >
+                           Add to cart
+                        </Button>
+                     ) : (
+                        <Button
+                           component={Link}
+                           to="/cart"
+                           variant="contained"
+                           color="primary"
+                           size="large"
+                        >
+                           View cart
+                        </Button>
+                     )}
+                     <Button 
+                        component={Link}
+                        to="/check-out"
+                        variant="outlined"
+                        color="primary"
+                        size="large"
+                     >
+                        Buy now
+                     </Button>
+                  </div>
+
+                  <div className={classes.socialShare}>
+                     <span>Share Now:</span>
+                     <SocialIcons />
+                  </div>
+               </div>
+            </Grid>
+         </Grid>
+         <ProductReview ref={reviewDialog} />
+      </div>
+   );
 }
+
 const mapStateToProps = ({ ecommerce }) => {
    const { cart, wishlist } = ecommerce;
    return { cart, wishlist };
-}
+};
 
 export default connect(mapStateToProps, {
    addProductItem,
