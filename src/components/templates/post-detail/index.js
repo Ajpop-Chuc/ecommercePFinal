@@ -7,7 +7,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
-import { getImageUrl } from '../../../util/imageUtils';
+import ProductImage from '../../common/ProductImage'; // Importa el componente ProductImage
 
 //components
 import SocialIcons from '../../widgets/SocialIcons';
@@ -136,7 +136,56 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     alignItems: 'center',
     gap: theme.spacing(2),
-  }
+  },
+  productGallery: {
+   display: 'flex',
+   gap: theme.spacing(2),
+   height: '500px', // Ajusta esta altura según necesites
+ },
+ galleryNav: {
+   display: 'flex',
+   flexDirection: 'column',
+   gap: theme.spacing(1),
+   width: '100px', // Ancho para las miniaturas
+   '& > div': {
+     height: '80px', // Altura fija para cada miniatura
+     width: '100%',
+     flexShrink: 0,
+   }
+ },
+ galleryItem: {
+   border: `1px solid ${theme.palette.grey[300]}`,
+   borderRadius: theme.shape.borderRadius,
+   overflow: 'hidden',
+   cursor: 'pointer',
+   transition: 'all 0.3s ease',
+   height: '100%',
+   '&:hover': {
+     borderColor: theme.palette.primary.main,
+   },
+   '&.active': {
+     borderColor: theme.palette.primary.main,
+     borderWidth: 2,
+   },
+   '& img': {
+     width: '100%',
+     height: '100%',
+     objectFit: 'cover',
+   }
+ },
+ mainImage: {
+   flex: 1,
+   border: `1px solid ${theme.palette.grey[300]}`,
+   borderRadius: theme.shape.borderRadius,
+   overflow: 'hidden',
+   boxShadow: theme.shadows[1],
+   height: '100%',
+   '& img': {
+     width: '100%',
+     height: '100%',
+     objectFit: 'cover',
+   }
+ },
 }));
 
 function PostDetail({ data, addProductItem, addToWishlist, showAlert }) {
@@ -190,37 +239,34 @@ function PostDetail({ data, addProductItem, addToWishlist, showAlert }) {
 
    return (
       <div className={classes.root}>
-         <Grid container spacing={4}>
-            <Grid item xs={12} md={6}>
+      <Grid container spacing={4}>
+        <Grid item xs={12} md={6}>
+          <div className={classes.productGallery}>
+            {/* Miniaturas a la izquierda */}
             <div className={classes.galleryNav}>
-      {data.images.map((image, index) => (
-         <div 
-           key={index} 
-           className={classes.galleryItem}
-           onClick={() => changePreviewImage(image)}
-         >
-            <img 
-              src={getImageUrl(image)} 
-              alt={`product-item-${index}`}
-              onError={(e) => {
-                console.log('Error loading thumbnail:', image);
-                e.target.src = getImageUrl(null); // usa la imagen por defecto
-              }}
-            />
-         </div>
-      ))}
-   </div>
-   <div className={classes.mainImage}>
-      <img 
-        src={getImageUrl(currentImage)} 
-        alt="main-product"
-        onError={(e) => {
-          console.log('Error loading main image:', currentImage);
-          e.target.src = getImageUrl(null);
-        }}
-      />
-   </div>
-            </Grid>
+              {data.images.map((image, index) => (
+                <div 
+                  key={index} 
+                  className={`${classes.galleryItem} ${currentImage === image ? 'active' : ''}`}
+                  onClick={() => changePreviewImage(image)}
+                >
+                  <ProductImage 
+                    src={image} 
+                    alt={`product-item-${index}`}
+                  />
+                </div>
+              ))}
+            </div>
+            
+            {/* Imagen principal a la derecha */}
+            <div className={classes.mainImage}>
+              <ProductImage 
+                src={currentImage} 
+                alt="main-product"
+              />
+            </div>
+          </div>
+        </Grid>
 
             <Grid item xs={12} md={6}>
                <div className={classes.detailContent}>

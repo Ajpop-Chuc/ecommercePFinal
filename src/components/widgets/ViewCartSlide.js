@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useHistory } from 'react-router-dom';
+import ProductImage from '../common/ProductImage'; // Añade esta importación
+
 import { 
   SwipeableDrawer,
   Button,
@@ -54,23 +56,12 @@ const useStyles = makeStyles((theme) => ({
     overflowY: 'auto',
     padding: theme.spacing(2)
   },
-  cartItem: {
-    display: 'flex',
-    padding: theme.spacing(2, 0),
-    borderBottom: `1px solid ${theme.palette.divider}`,
-    '&:last-child': {
-      borderBottom: 'none'
-    }
-  },
   itemImage: {
     width: 80,
     height: 80,
     borderRadius: theme.shape.borderRadius,
     objectFit: 'cover',
     marginRight: theme.spacing(2)
-  },
-  itemInfo: {
-    flex: 1
   },
   itemActions: {
     display: 'flex',
@@ -142,10 +133,22 @@ const useStyles = makeStyles((theme) => ({
     top: 13,
     border: `2px solid ${theme.palette.background.paper}`,
     padding: '0 4px',
-  }
+  },
+  cartItem: {
+    display: 'flex',
+    padding: theme.spacing(2, 0),
+    borderBottom: `1px solid ${theme.palette.divider}`,
+    alignItems: 'center',
+    gap: theme.spacing(2),
+    '&:last-child': {
+      borderBottom: 'none'
+    }
+  },
+  itemInfo: {
+    flex: 1,
+    minWidth: 0, // Para prevenir que el texto se desborde
+  },
 }));
-
-const DEFAULT_PLACEHOLDER = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfvXaTBeRRlr3KgzwHb1Dq-4iwk6ic8cqvHg&s';
 
 const ViewCartSlide = () => {
   const classes = useStyles();
@@ -168,29 +171,6 @@ const ViewCartSlide = () => {
     return (subtotal + (shipping || 0) + (tax || 0)).toFixed(2);
   };
 
-  const getImageUrl = (imageUrl) => {
-    console.log('getImageUrl - Input imageUrl:', imageUrl); // Log de la URL de entrada
-  
-    if (!imageUrl) {
-      console.log('getImageUrl - No image URL provided, using default:', DEFAULT_PLACEHOLDER);
-      return DEFAULT_PLACEHOLDER;
-    }
-  
-    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-      console.log('getImageUrl - External URL detected:', imageUrl);
-      return imageUrl;
-    }
-  
-    if (imageUrl.startsWith('/')) {
-      console.log('getImageUrl - Absolute path detected:', imageUrl);
-      return imageUrl;
-    }
-  
-    const finalUrl = `/images/${imageUrl}`;
-    console.log('getImageUrl - Final processed URL:', finalUrl);
-    return finalUrl;
-  };
-
   const handleDeleteConfirm = () => {
     if (itemToDelete) {
       dispatch({ type: 'REMOVE_PRODUCT_ITEM', payload: itemToDelete });
@@ -201,21 +181,13 @@ const ViewCartSlide = () => {
 
   const CartItem = ({ item }) => (
     <div className={classes.cartItem}>
-      <img
-      src={getImageUrl(item.image)}
-      alt={item.name}
-      className={classes.itemImage}
-      onError={(e) => {
-        console.log('Image load error for:', item.name, 'Original src:', e.target.src);
-        console.log('Image error details:', {
-          itemId: item.id,
-          itemName: item.name,
-          attemptedImage: item.image
-        });
-        e.target.src = DEFAULT_PLACEHOLDER;
-        console.log('Fallback image set to:', DEFAULT_PLACEHOLDER);
-      }}
-    />
+      <div className={classes.itemImageContainer}>
+        <ProductImage
+          src={item.image}
+          alt={item.name}
+          className={classes.itemImage}
+        />
+      </div>
       <div className={classes.itemInfo}>
         <Typography variant="subtitle1" gutterBottom>
           {item.name}
