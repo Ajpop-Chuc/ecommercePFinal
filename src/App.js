@@ -128,7 +128,7 @@ class App extends React.Component {
                         }
                         <ProductReview />
                         <Switch>
-                           <Route exact path="/" component={AsyncHomePageOneComponent} />
+                           <Route path="/home-one" component={AsyncHomePageOneComponent} />
                            <Route path="/home-two" component={AsyncHomePageTwoComponent} />
                            <Route path="/home-three" component={AsyncHomePageThreeComponent} />
                            <Route path="/products/:type/:id" component={AsyncProductDetailComponent} />
@@ -143,7 +143,7 @@ class App extends React.Component {
                            <Route path="/privacy-policy" component={AsyncPrivacyPolicyComponent} />
                            <Route path="/faq" component={AsyncFAQComponent} />
                            <Route path="/blogs/detail/:id" component={AsyncBlogDetailComponent} />
-                           <Route path="/sign-in" component={AsyncSignInPageComponent} />
+                           <Route exact path="/" component={AsyncSignInPageComponent} />
                            <Route path="/sign-up" component={AsyncSignUpComponent} />
                            <Route path="/forget-password" component={AsyncForgetPasswordComponent} />
                            <Route path="/thank-you" component={AsyncThankYouComponent} />

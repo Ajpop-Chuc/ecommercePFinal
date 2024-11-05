@@ -57,7 +57,7 @@ export default [
    },
    {
       "menu_title": "admin.goToHome",
-      "path": "/",
+      "path": "/home-one",
       "icon": "home",
       "child_routes": null
    },
