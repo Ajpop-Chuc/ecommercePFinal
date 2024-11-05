@@ -56,7 +56,7 @@ export default class SignUp extends Component {
          const token = localStorage.getItem('token');
          await axios.post('http://127.0.0.1:4000/api/users/register/', data, {
             headers: {
-               Authorization: `Bearer ${token}`, // Asegúrate de reemplazar con el token adecuado
+               'Authorization': `Bearer ${token}`, // Asegúrate de reemplazar con el token adecuado
                'Content-Type': 'application/json',
             },
          });

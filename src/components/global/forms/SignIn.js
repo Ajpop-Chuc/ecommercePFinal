@@ -6,6 +6,12 @@ import Checkbox from '@material-ui/core/Checkbox';
 import TextField from '@material-ui/core/TextField';
 import { Link, withRouter } from 'react-router-dom';
 
+
+localStorage.removeItem('token');
+localStorage.removeItem('userId');
+localStorage.removeItem('userName');
+localStorage.removeItem('usertype');
+
 class SignIn extends React.Component {
     state = {
         email: '',
@@ -48,7 +54,7 @@ class SignIn extends React.Component {
 
             // Redirigir a otra página después de inicio de sesión exitoso
             if(data.user.type === "customer"){
-                this.props.history.push('/home-one');
+                this.props.history.push('/accessories');
             }
             else{
                 this.props.history.push('/admin-panel/admin');

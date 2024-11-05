@@ -1,197 +1,350 @@
-/**
- * cart list item
- */
-/* eslint-disable */
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect, useState, useRef } from 'react';
+import { useHistory } from 'react-router-dom';
 import Button from '@material-ui/core/Button';
 import Popover from '@material-ui/core/Popover';
 import IconButton from "@material-ui/core/IconButton";
 import Badge from '@material-ui/core/Badge';
-import { Link } from 'react-router-dom';
-
-//connect to store
 import { connect } from "react-redux";
-
-// global component
+import { 
+   Dialog, 
+   DialogTitle, 
+   DialogContent, 
+   DialogActions, 
+   DialogContentText 
+} from '@material-ui/core';
 import CurrencyIcon from '../../global/currency/CurrencyIcon';
 import ConfirmationDialog from '../../global/confirmation-popup';
-
-//action
 import { removeProductItem } from '../../../actions/action';
+import ProductImage from '../../common/ProductImage';
 
-class Cart extends React.Component {
+// PayPal configuration constants
+const PAYPAL_CLIENT_ID = "ARRA3T3Mmd2KujxvoCVGbtp2QrFaD1_ofYR5EU1nzSPCQ6KVpVcjIaIJGPdkXok17A7piny14eOH-rt0";
+const PAYPAL_CURRENCY = "USD";
 
-   constructor(props) {
-      super(props);
-      this.confirmationDialog = React.createRef();
-      this.state = {
-         anchorEl: null,
+const Cart = ({ cart = [], removeProductItem }) => {
+  const history = useHistory();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [showPayPalDialog, setShowPayPalDialog] = useState(false);
+  const [paypalLoaded, setPaypalLoaded] = useState(false);
+  const paypalButtonsRef = useRef(null);
+  const [paypalButtonsRendered, setPaypalButtonsRendered] = useState(false);
+  
+  const open = Boolean(anchorEl);
+
+  // Load the PayPal script
+  useEffect(() => {
+    const loadPayPalScript = () => {
+      const script = document.createElement("script");
+      script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=${PAYPAL_CURRENCY}`;
+      script.async = true;
+      
+      script.onload = () => {
+        setPaypalLoaded(true);
       };
-   }
-
-   //Define function for open dropdown
-   handleClick = event => {
-      this.setState({
-         anchorEl: event.currentTarget,
-      });
-   };
-
-   //Define function for close dropdown
-   handleClose = () => {
-      this.setState({
-         anchorEl: null,
-      });
-   };
-
-   //Function to delete product from cart
-   onDeleteCartItem(cartItem) {
-      this.cartItem = cartItem;
-      this.confirmationDialog.current.openDialog();
-   }
-
-   //Function for delete cart product
-   deleteCartItem(popupResponse) {
-      if (popupResponse) {
-         this.props.removeProductItem(this.cartItem);
-         this.cartItem = ""
+      
+      document.body.appendChild(script);
+    };
+    
+    if (!document.querySelector('script[src*="paypal"]')) {
+      loadPayPalScript();
+    }
+    
+    return () => {
+      const paypalScript = document.querySelector('script[src*="paypal"]');
+      if (paypalScript) {
+        document.body.removeChild(paypalScript);
       }
-      this.setState(
-         {
-            anchorEl: null,
-         }
-      )
-   }
+      setPaypalButtonsRendered(false);
+    };
+  }, []);
 
-   //get url
-   getUrl(url) {
-      //console.log("url", url.split('/')[0])
-      return url.split('/')[0];
-   }
+  // Render PayPal buttons
+  useEffect(() => {
+    if (paypalLoaded && showPayPalDialog && !paypalButtonsRendered && paypalButtonsRef.current) {
+      if (window.paypal) {
+        const PayPalButtons = window.paypal.Buttons({
+          style: {
+            shape: 'rect',
+            color: 'gold',
+            layout: 'vertical',
+            label: 'paypal'
+          },
 
-   render() {
+          createOrder: async () => {
+            try {
+              const response = await fetch('/api/create-order', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  items: cart,
+                  total: calculateTotal(),
+                  currency: PAYPAL_CURRENCY
+                })
+              });
+              
+              const orderData = await response.json();
+              return orderData.id;
+            } catch (err) {
+              console.error('Error creating PayPal order:', err);
+              throw err;
+            }
+          },
 
-      const { anchorEl } = this.state;
-      const open = Boolean(anchorEl);
-      const { cart } = this.props;
+          onApprove: async (data, actions) => {
+            try {
+              const response = await fetch('/api/complete-order', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  orderId: data.orderID
+                })
+              });
+              
+              const orderDetails = await response.json();
+              
+              // Handle successful payment
+              handleClose();
+              setShowPayPalDialog(false);
+              
+              // Redirect to success page
+              history.push('/order-success', { state: { orderDetails } });
+              
+            } catch (err) {
+              console.error('Error completing PayPal order:', err);
+              throw err;
+            }
+          },
 
-      return (
-         <div className="iron-cart-wrap">
-            <IconButton
-               color="inherit"
-               aria-owns={open ? 'simple-popper' : null}
-               aria-haspopup="true"
-               variant="contained"
-               onClick={this.handleClick}
-               className="icon-btn mr-10"
-               aria-label="Cart"
-            >
-               {cart && cart.length > 0 ?
-                  (
-                     <Badge
-                        badgeContent={cart.length}
-                        color="secondary"
-                        className="badge-active"
-                     >
-                        <i className="material-icons">shopping_cart</i>
-                     </Badge>
-                  )
-                  :
-                  (
-                     <i className="material-icons">shopping_cart</i>
-                  )
-               }
-            </IconButton>
-            <Popover
-               id="simple-popper"
-               open={open}
-               anchorEl={anchorEl}
-               onClose={this.handleClose}
-               anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'center',
-               }}
-               transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'center',
-               }}
-            >
-               <div>
-                  {(cart && cart.length > 0) ?
-                     (
-                        <Fragment>
-                           <ul className="iron-cart-list-wrap mb-0">
-                              {cart && cart.map((cartItem, index) => {
-                                 return (
-                                    <li key={index} className="cart-menu-item p-10 mb-0">
-                                       <div className="d-flex iron-cart-post">
-                                          <div className="cart-thumb">
-                                             {this.getUrl(cartItem.image) === 'https:' ?
-                                                <img
-                                                   src={cartItem.image}
-                                                   alt='product-thumbnail'
-                                                />
-                                                :
-                                                <img
-                                                   src={require(`../../../assets/images/${cartItem.image}`).default}
-                                                   alt='product-thumbnail'
-                                                />
-                                             }
-                                          </div>
-                                          <div className=" cart-content-wrap d-flex justify-content-start align-items-center">
-                                             <div className="cart-content" >
-                                                <h6 className="mb-5 text-truncate">{cartItem.name}</h6>
-                                                <span><CurrencyIcon /> {cartItem.totalPrice}</span>
-                                             </div>
-                                             <div className="cart-edit-action d-flex justify-content-end align-items-center">
-                                                <Button
-                                                   className="icon-btn button mr-5"
-                                                   onClick={() => this.onDeleteCartItem(cartItem)}
-                                                >
-                                                   <i className="material-icons">remove_shopping_cart</i>
-                                                </Button>
-                                                <Button component={Link} to="/cart" className="icon-btn button" onClick={this.handleClose} >
-                                                   <i className="material-icons">edit</i>
-                                                </Button>
-                                             </div>
-                                          </div>
-                                       </div>
-                                    </li>
-                                 )
-                              })
-                              }
-                           </ul>
-                           <div className=" py-15 px-10">
-                              <Button onClick={this.handleClose} component={Link} to="/check-out" className="button btn-active w-100">
-                                 checkout
-                              </Button>
-                           </div>
-                        </Fragment>
-                     )
-                     :
-                     (
-                        <div>
-                           <span className="text-capitalize text-14 dark-color d-block px-40 py-15">no product found</span>
-                        </div>
-                     )
-                  }
-               </div>
-               <ConfirmationDialog
-                  ref={this.confirmationDialog}
-                  onConfirm={(res) => this.deleteCartItem(res)}
-               />
-            </Popover>
-         </div>
-      );
-   }
-}
+          onError: (err) => {
+            console.error('PayPal Error:', err);
+            // Handle error state
+          }
+        });
 
-// map state to props
+        // Check if PayPal Buttons are eligible before rendering
+        if (PayPalButtons.isEligible()) {
+          PayPalButtons.render(paypalButtonsRef.current).then(() => {
+            setPaypalButtonsRendered(true);
+          });
+        }
+      } else {
+        console.error('PayPal SDK not loaded yet.');
+      }
+
+      // Cleanup when the dialog is closed
+      return () => {
+        if (paypalButtonsRef.current) {
+          paypalButtonsRef.current.innerHTML = '';
+          setPaypalButtonsRendered(false);
+        }
+      };
+    }
+  }, [paypalLoaded, showPayPalDialog, cart, history, paypalButtonsRendered]);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const calculateTotal = () => {
+    return cart.reduce((total, item) => total + (item.totalPrice || 0), 0);
+  };
+
+  const handlePaymentClick = () => {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      setShowLoginDialog(true);
+    } else {
+      setPaypalButtonsRendered(false); // Reset the render state
+      setShowPayPalDialog(true);
+    }
+  };
+
+  const handleLoginDialogClose = () => {
+    setShowLoginDialog(false);
+    handleClose();
+    history.push('/');
+  };
+
+  const handlePayPalDialogClose = () => {
+    setShowPayPalDialog(false);
+    setPaypalButtonsRendered(false);
+  };
+
+  return (
+    <div className="iron-cart-wrap">
+      <IconButton
+        color="inherit"
+        aria-owns={open ? 'simple-popper' : undefined}
+        aria-haspopup="true"
+        variant="contained"
+        onClick={handleClick}
+        className="icon-btn mr-10"
+      >
+        {cart.length > 0 ? (
+          <Badge badgeContent={cart.length} color="secondary" overlap="rectangular">
+            <i className="material-icons">shopping_cart</i>
+          </Badge>
+        ) : (
+          <i className="material-icons">shopping_cart</i>
+        )}
+      </IconButton>
+
+      <Popover
+        id="simple-popper"
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        PaperProps={{
+          style: {
+            width: 320,
+            maxHeight: 400
+          }
+        }}
+      >
+        {cart.length > 0 ? (
+          <Fragment>
+            <ul className="p-0 m-0" style={{ listStyle: 'none' }}>
+              {cart.map((cartItem, index) => (
+                <li key={index} style={{
+                  padding: '12px',
+                  borderBottom: '1px solid #eee',
+                  backgroundColor: 'white'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div style={{
+                      width: 60,
+                      height: 60,
+                      marginRight: 12,
+                      overflow: 'hidden',
+                      borderRadius: 4,
+                      backgroundColor: '#f5f5f5'
+                    }}>
+                      <ProductImage
+                        src={cartItem.image}
+                        alt={cartItem.name}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <h6 style={{
+                        margin: '0 0 4px 0',
+                        fontSize: '14px',
+                        fontWeight: 500
+                      }}>
+                        {cartItem.name}
+                      </h6>
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <span style={{ fontSize: '14px' }}>
+                          <CurrencyIcon /> {cartItem.totalPrice?.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <div style={{ padding: '12px' }}>
+              <Button
+                fullWidth
+                variant="contained"
+                color="primary"
+                onClick={handlePaymentClick}
+              >
+                Proceder al pago ({PAYPAL_CURRENCY} {calculateTotal().toFixed(2)})
+              </Button>
+            </div>
+          </Fragment>
+        ) : (
+          <div style={{ padding: '24px', textAlign: 'center' }}>
+            <i className="material-icons" style={{ fontSize: 48, color: '#999', marginBottom: 12 }}>
+              shopping_cart
+            </i>
+            <p style={{ margin: 0, color: '#666' }}>
+              No hay productos en el carrito
+            </p>
+          </div>
+        )}
+      </Popover>
+
+      {/* Login Dialog */}
+      <Dialog
+        open={showLoginDialog}
+        onClose={handleLoginDialogClose}
+      >
+        <DialogTitle>Inicio de sesión requerido</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Para continuar con el pago, necesitas iniciar sesión primero.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button 
+            onClick={handleLoginDialogClose} 
+            color="primary"
+            variant="contained"
+          >
+            Ir a inicio de sesión
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* PayPal Dialog */}
+      <Dialog
+        open={showPayPalDialog}
+        onClose={handlePayPalDialogClose}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Pago con PayPal</DialogTitle>
+        <DialogContent>
+          <DialogContentText style={{ marginBottom: '20px' }}>
+            Total a pagar: {PAYPAL_CURRENCY} {calculateTotal().toFixed(2)}
+          </DialogContentText>
+          <div id="paypal-button-container" ref={paypalButtonsRef} style={{ minHeight: '150px' }} />
+        </DialogContent>
+        <DialogActions>
+          <Button 
+            onClick={handlePayPalDialogClose} 
+            color="primary"
+          >
+            Cancelar
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
+};
+
 const mapStateToProps = ({ ecommerce }) => {
-   const { cart } = ecommerce;
-   return { cart };
-}
+  const { cart = [] } = ecommerce;
+  return { cart };
+};
 
 export default connect(mapStateToProps, {
-   removeProductItem
+  removeProductItem
 })(Cart);
-

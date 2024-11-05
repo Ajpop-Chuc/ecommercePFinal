@@ -16,24 +16,7 @@ import {
 } from '../actions/types';
 
 //initial data
-let cartData = [
-   {
-      productID: 51,
-      image: "men/1-item-a.jpg",
-      name: 'denim pullover',
-      price: 37.03,
-      quantity: 1,
-      totalPrice: 37.03
-   },
-   {
-      productID: 52,
-      image: "men/2-item-a.jpg",
-      name: 'super jacket',
-      price: 90,
-      quantity: 1,
-      totalPrice: 90
-   }
-]
+let cartData = []
 let wishlistData = [
    {
       productID: 51,
@@ -103,21 +86,30 @@ const INITIAL_STATE = {
 const EcommerceReducer = (state = INITIAL_STATE, action) => {
    switch (action.type) {
       // add product to cart 
-      case ADD_TO_CART:
-         let product = action.payload;
-         let newProductData = {
-            productID: product.objectID,
-            image: product.image,
-            name: product.name,
-            quantity: 1,
-            price: product.price,
-            totalPrice: product.price,
-         }
-         return {
-            ...state,
-            cart: [...state.cart, newProductData],
-            totalPrice: state.totalPrice + newProductData.price
-         }
+      // En el reducer, modifica el case ADD_TO_CART:
+   case ADD_TO_CART:
+      let product = action.payload;
+      let newProductData = {
+         productID: product.id || product._id || product.objectID,
+         // Si hay un array de imágenes, usa la primera imagen
+         image: product.images?.[0] || product.image,
+         name: product.name,
+         quantity: product.selectedVariations?.quantity || 1,
+         price: product.price,
+         totalPrice: product.price * (product.selectedVariations?.quantity || 1),
+      }
+      
+      console.log('Adding to cart with image:', newProductData); // Log para debug
+
+      const exists = state.cart.some(item => item.productID === newProductData.productID);
+      if (exists) {
+         return state;
+      }
+
+      return {
+         ...state,
+         cart: [...state.cart, newProductData],
+      }
 
       // add product to wishlist
       case ADD_TO_WISHLIST:

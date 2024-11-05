@@ -12,6 +12,13 @@ import { configureStore } from './store/index';
 // store
 export const store = configureStore();
 
+if (typeof process === 'undefined') {
+   window.process = {
+     env: {
+       NODE_ENV: 'development'
+     }
+   };
+ }
 
 ReactDOM.render(
    <Provider store={store}>

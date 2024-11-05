@@ -1,195 +1,337 @@
-/**
- * View cart sidebar component
- */
-/* eslint-disable */
-import React, { Fragment } from 'react';
-import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
-import Button from '@material-ui/core/Button';
-import Divider from '@material-ui/core/Divider';
-import CurrencyIcon from '../global/currency/CurrencyIcon';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { Link, useHistory } from 'react-router-dom';
+import ProductImage from '../common/ProductImage'; // Añade esta importación
 
-//connect to store
-import { connect } from 'react-redux';
+import { 
+  SwipeableDrawer,
+  Button,
+  Divider,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  IconButton,
+  Typography,
+  Box,
+  Badge,
+  Paper,
+  makeStyles
+} from '@material-ui/core';
+import {
+   ShoppingCart as ShoppingCartIcon,
+   Close as CloseIcon,
+   ArrowForward,
+   LocalMall as LocalMallIcon // Cambiamos ShoppingBag por LocalMall
+ } from '@material-ui/icons';
 
-//action
-import { removeProductItem } from '../../actions/action';
+const useStyles = makeStyles((theme) => ({
+  drawer: {
+    width: 380,
+    [theme.breakpoints.down('xs')]: {
+      width: '100vw',
+    },
+  },
+  drawerPaper: {
+    width: 380,
+    [theme.breakpoints.down('xs')]: {
+      width: '100vw',
+    },
+  },
+  header: {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    padding: theme.spacing(4, 2),
+    position: 'relative'
+  },
+  closeButton: {
+    position: 'absolute',
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+    color: theme.palette.primary.contrastText
+  },
+  cartContent: {
+    height: 'calc(100vh - 260px)',
+    overflowY: 'auto',
+    padding: theme.spacing(2)
+  },
+  itemImage: {
+    width: 80,
+    height: 80,
+    borderRadius: theme.shape.borderRadius,
+    objectFit: 'cover',
+    marginRight: theme.spacing(2)
+  },
+  itemActions: {
+    display: 'flex',
+    alignItems: 'center',
+    marginTop: theme.spacing(1)
+  },
+  quantityControl: {
+    display: 'flex',
+    alignItems: 'center',
+    border: `1px solid ${theme.palette.divider}`,
+    borderRadius: theme.shape.borderRadius,
+    marginRight: theme.spacing(2)
+  },
+  quantityButton: {
+    padding: 4,
+  },
+  quantity: {
+    padding: theme.spacing(0, 2),
+    userSelect: 'none'
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: theme.palette.background.paper,
+    boxShadow: theme.shadows[3],
+    padding: theme.spacing(2)
+  },
+  totalItem: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: theme.spacing(1, 0),
+    '& > span': {
+      color: theme.palette.text.secondary
+    }
+  },
+  totalAmount: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: theme.spacing(2, 0),
+    '& > span': {
+      fontSize: '1.25rem',
+      fontWeight: 600
+    }
+  },
+  checkoutButton: {
+    marginTop: theme.spacing(2)
+  },
+  emptyCart: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: theme.spacing(4),
+    height: '100%',
+    textAlign: 'center',
+    '& svg': {
+      fontSize: 64,
+      color: theme.palette.text.secondary,
+      marginBottom: theme.spacing(2)
+    }
+  },
+  cartTrigger: {
+    position: 'relative'
+  },
+  badge: {
+    right: -3,
+    top: 13,
+    border: `2px solid ${theme.palette.background.paper}`,
+    padding: '0 4px',
+  },
+  cartItem: {
+    display: 'flex',
+    padding: theme.spacing(2, 0),
+    borderBottom: `1px solid ${theme.palette.divider}`,
+    alignItems: 'center',
+    gap: theme.spacing(2),
+    '&:last-child': {
+      borderBottom: 'none'
+    }
+  },
+  itemInfo: {
+    flex: 1,
+    minWidth: 0, // Para prevenir que el texto se desborde
+  },
+}));
 
-//global component
-import ConfirmationDialog from '../global/confirmation-popup';
+const ViewCartSlide = () => {
+  const classes = useStyles();
+  const history = useHistory();
+  const [isOpen, setIsOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
-// helpers
-import { getSubTotalPrice, getTotalPrice } from "../../helpers";
+  const cart = useSelector(state => state.ecommerce.cart);
+  const tax = useSelector(state => state.ecommerce.tax);
+  const shipping = useSelector(state => state.ecommerce.shipping);
+  const dispatch = useDispatch();
 
-class ViewCartSlide extends React.Component {
+  const getSubTotalPrice = () => {
+    return cart?.reduce((total, item) => total + item.totalPrice, 0).toFixed(2) || '0.00';
+  };
 
-   constructor(props) {
-      super(props);
-      this.confirmationDialog = React.createRef();
-      this.state = {
-         right: false,
-      };
-   }
-   /**
-    * function for toggle sidebar
-    */
-   toggleDrawer = (side, open) => () => {
-      this.setState({
-         [side]: open,
-      });
-   };
+  const getTotalPrice = () => {
+    const subtotal = parseFloat(getSubTotalPrice());
+    return (subtotal + (shipping || 0) + (tax || 0)).toFixed(2);
+  };
 
-   /**
-    * function to delete product from cart
-    * @param {object} cartItem 
-    */
-   onDeleteCartItem(cartItem) {
-      this.cartItem = cartItem;
-      this.confirmationDialog.current.openDialog();
-   }
+  const handleDeleteConfirm = () => {
+    if (itemToDelete) {
+      dispatch({ type: 'REMOVE_PRODUCT_ITEM', payload: itemToDelete });
+    }
+    setIsDeleteDialogOpen(false);
+    setItemToDelete(null);
+  };
 
-   /**
-    * function for delete cart product
-    * @param {boolean} popupResponse 
-    */
-   deleteCartItem(popupResponse) {
-      if (popupResponse) {
-         this.props.removeProductItem(this.cartItem);
-         this.cartItem = ""
-      }
-      this.setState({
-         right: false,
-      });
-   }
+  const CartItem = ({ item }) => (
+    <div className={classes.cartItem}>
+      <div className={classes.itemImageContainer}>
+        <ProductImage
+          src={item.image}
+          alt={item.name}
+          className={classes.itemImage}
+        />
+      </div>
+      <div className={classes.itemInfo}>
+        <Typography variant="subtitle1" gutterBottom>
+          {item.name}
+        </Typography>
+        <Typography variant="body2" color="textSecondary">
+          ${item.price.toFixed(2)} x {item.quantity}
+        </Typography>
+      </div>
+      <Typography variant="subtitle1" color="primary">
+        ${item.totalPrice.toFixed(2)}
+      </Typography>
+    </div>
+  );
 
-   //get url
-   getUrl(url) {
-      return url.split('/')[0];
-   }
+  const EmptyCart = () => (
+   <div className={classes.emptyCart}>
+     <LocalMallIcon /> {/* Aquí usamos LocalMallIcon en lugar de ShoppingBag */}
+     <Typography variant="h6" gutterBottom>
+       Tu carrito está vacío
+     </Typography>
+     <Typography variant="body2" color="textSecondary" paragraph>
+       ¡Agrega algunos productos para comenzar!
+     </Typography>
+     <Button
+       variant="contained"
+       color="primary"
+       component={Link}
+       to="/shop"
+       startIcon={<ShoppingCartIcon />}
+     >
+       Ir a la tienda
+     </Button>
+   </div>
+ );
 
-   render() {
+  return (
+    <>
+      <IconButton 
+        className={classes.cartTrigger}
+        onClick={() => setIsOpen(true)}
+        color="inherit"
+      >
+        <Badge 
+          badgeContent={cart?.length || 0} 
+          color="secondary"
+          classes={{ badge: classes.badge }}
+        >
+          <ShoppingCartIcon />
+        </Badge>
+      </IconButton>
 
-      const { cart, tax, shipping } = this.props;
-      return (
-         <div className="iron-view-cart-wrapper">
-            <Button
-               className="button btn-active"
-               onClick={this.toggleDrawer('right', true)}
+      <SwipeableDrawer
+        anchor="right"
+        open={isOpen}
+        onClose={() => setIsOpen(false)}
+        onOpen={() => setIsOpen(true)}
+        classes={{
+          paper: classes.drawerPaper
+        }}
+      >
+        <div className={classes.drawer}>
+          <Box className={classes.header}>
+            <IconButton 
+              className={classes.closeButton}
+              onClick={() => setIsOpen(false)}
             >
-               Show Order Detail : <span className="pl-5"><CurrencyIcon /> {getTotalPrice()}</span>
+              <CloseIcon />
+            </IconButton>
+            <Typography variant="h4" align="center" color="common.white">
+              Carrito de Compras
+            </Typography>
+            <Typography variant="subtitle2" align="center">
+              {cart?.length || 0} {cart?.length === 1 ? 'item' : 'items'}
+            </Typography>
+          </Box>
 
-            </Button>
-            <SwipeableDrawer
-               anchor="right"
-               open={this.state.right}
-               onClose={this.toggleDrawer('right', false)}
-               onOpen={this.toggleDrawer('right', true)}
-            >
-               <div
-                  tabIndex={0}
-                  role="button"
-                  className="iron-overflow-x-hidden"
-               //onClick={this.toggleDrawer('right', false)}
-               // onKeyDown={this.toggleDrawer('right', false)}
-               >
-                  <div className="iron-view-cart-sidebar">
-                     <div className="side-cart-head text-center py-40 px-30 bg-active">
-                        <div className="mb-15"><i className="material-icons"> shopping_cart </i></div>
-                        <h5 className="mb-0">You have {cart ? cart.length : 0} items in your cart</h5>
-                     </div>
-                     <div className="side-cart-wrapper px-15">
-                        {(cart && cart.length > 0) ?
-                           (
-                              <Fragment>
-                                 <div>
-                                    {cart.map((cartItem, index) => {
-                                       return (
-                                          <div key={index} className="side-cart-list d-flex justify-content-start align-items-center py-20">
-                                             <div className="cart-thumb">
-                                                {this.getUrl(cartItem.image) === 'https:' ?
-                                                   <img
-                                                      src={cartItem.image}
-                                                      alt="cart-item"
-                                                   />
-                                                   :
-                                                   <img
-                                                      src={require(`../../assets/images/${cartItem.image}`).default}
-                                                      alt="cart-item"
-                                                   />
-                                                }
-                                             </div>
-                                             <div className="cart-content">
-                                                <div className="d-flex justify-content-start align-items-start pl-20 pr-5">
-                                                   <div className="title">
-                                                      <h6 className="mb-5 text-truncate">{cartItem.name}</h6>
-                                                      <p className="mb-5"><span>{cartItem.quantity}</span></p>
-                                                      <p className="font-bold">
-                                                         <CurrencyIcon />
-                                                         {cartItem.totalPrice.toFixed(2)}
-                                                      </p>
-                                                   </div>
-                                                   <div className="edit-cart">
-                                                      <Button className="p-0"
-                                                         onClick={() => this.onDeleteCartItem(cartItem)}
-                                                      >
-                                                         <i className="material-icons"> remove_shopping_cart </i>
-                                                      </Button>
-                                                      <Button component={Link} to="/cart" className="p-0">
-                                                         <i className="material-icons"> edit </i>
-                                                      </Button>
-                                                   </div>
-                                                </div>
-                                             </div>
-                                          </div>
-                                       )
-                                    })
-                                    }
-                                 </div>
-                                 <div className="py-20">
-                                    <div className="d-flex justify-content-between align-items-center mb-20">
-                                       <span>Subtotal</span><span><CurrencyIcon /> {getSubTotalPrice()}</span></div>
-                                    <div className="d-flex justify-content-between align-items-center mb-20">
-                                       <span>Shipping</span><span><CurrencyIcon /> {shipping}5</span></div>
-                                    <div className="d-flex justify-content-between align-items-center mb-20">
-                                       <span>Tax(GST)</span><span><CurrencyIcon /> {tax}</span></div>
-                                    <Divider className="my-20" />
-                                    <div className="mb-25 d-flex justify-content-between align-items-center">
-                                       <h4>Total</h4><span></span>
-                                       <h4> <CurrencyIcon /> {getTotalPrice()}</h4>
-                                    </div>
-                                 </div>
-                              </Fragment>
-                           )
-                           :
-                           (
-                              <div className="section-pad text-center">
-                                 <div className="mb-30">
-                                    <img src={require("../../assets/images/empty-cart.png")} alt="shop-cart" />
-                                 </div>
-                                 <h4>Your Shopping Bag is empty.</h4>
-                                 <Link to='/shop' className="text-capitalize">go for shopping</Link>
-                              </div>
-                           )
-                        }
-                     </div>
-                     <ConfirmationDialog
-                        ref={this.confirmationDialog}
-                        onConfirm={(res) => this.deleteCartItem(res)}
-                     />
-                  </div>
-               </div>
-            </SwipeableDrawer>
-         </div>
-      );
-   }
-}
+          <div className={classes.cartContent}>
+            {cart && cart.length > 0 ? (
+              cart.map((item, index) => (
+                <CartItem key={index} item={item} />
+              ))
+            ) : (
+              <EmptyCart />
+            )}
+          </div>
 
-// map state to props
-const mapStateToProps = ({ ecommerce }) => {
-   const { cart, tax, shipping } = ecommerce;
-   return { cart, tax, shipping };
-}
+          {cart && cart.length > 0 && (
+            <Paper elevation={4} className={classes.footer}>
+              <div className={classes.totalItem}>
+                <span>Subtotal</span>
+                <span>${getSubTotalPrice()}</span>
+              </div>
+              <div className={classes.totalItem}>
+                <span>Envío</span>
+                <span>${shipping?.toFixed(2) || '0.00'}</span>
+              </div>
+              <div className={classes.totalItem}>
+                <span>Impuestos</span>
+                <span>${tax?.toFixed(2) || '0.00'}</span>
+              </div>
+              <Divider />
+              <div className={classes.totalAmount}>
+                <span>Total</span>
+                <span>${getTotalPrice()}</span>
+              </div>
+              <Button
+                variant="contained"
+                color="primary"
+                fullWidth
+                className={classes.checkoutButton}
+                onClick={() => {
+                  setIsOpen(false);
+                  history.push('/payment');
+                }}
+                endIcon={<ArrowForward />}
+              >
+                Proceder al pago
+              </Button>
+            </Paper>
+          )}
+        </div>
+      </SwipeableDrawer>
 
-export default connect(mapStateToProps, {
-   removeProductItem,
-})(ViewCartSlide);
+      <Dialog
+        open={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+      >
+        <DialogTitle>Eliminar producto</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            ¿Estás seguro de que deseas eliminar este producto del carrito?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsDeleteDialogOpen(false)} color="primary">
+            Cancelar
+          </Button>
+          <Button onClick={handleDeleteConfirm} color="secondary" autoFocus>
+            Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+};
+
+export default ViewCartSlide;
