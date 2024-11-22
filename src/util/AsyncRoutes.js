@@ -198,16 +198,20 @@ const AsyncProductEditComponent = Loadable({
 });
 
 //vendedor -----------------------------------------------------
-const AsyncVendedorComponent = Loadable({
-   loader: () => import('../routes/admin-panel/vendedor'),
+const AsyncProveedorComponent = Loadable({
+   loader: () => import('../routes/admin-panel/proveedor'),
    loading: () => <ContentLoader />,
 });
 
-const AsyncVendedorAddComponent = Loadable({
-   loader: () => import('../routes/admin-panel/vendedor/vendedor-add'),
+const AsyncProveedorAddComponent = Loadable({
+   loader: () => import('../routes/admin-panel/proveedor/proveedor-add'),
    loading: () => <ContentLoader />,
 });
 
+const AsyncProveedorEditComponent = Loadable({
+   loader: () => import('../routes/admin-panel/proveedor/proveedor-edit'),
+   loading: () => <ContentLoader />,
+});
 //admin account details
 const AsyncProfileDetailComponent = Loadable({
    loader: () => import('../routes/admin-panel/account'),
@@ -225,10 +229,8 @@ const usuariosAddComponent = Loadable({
    loading: () => <ContentLoader />,
 });
 
-const proveedoresComponent = Loadable({
-   loader: () => import('../routes/admin-panel/usuarios'),
-   loading: () => <ContentLoader />,
-});
+
+
 
 
 export {
@@ -264,10 +266,11 @@ export {
    AsyncProductAddComponent,
    AsyncProductEditComponent,
    AsyncProfileDetailComponent,
-   AsyncVendedorComponent,
-   AsyncVendedorAddComponent,
+   AsyncProveedorComponent,
+   AsyncProveedorAddComponent,
+   AsyncProveedorEditComponent,
    AsyncPageNotFoundComponent,
    usuariosComponent,
-   usuariosAddComponent,
-   proveedoresComponent
+   usuariosAddComponent
+   
 }

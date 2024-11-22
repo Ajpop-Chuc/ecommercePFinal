@@ -12,11 +12,11 @@ import {
    AsyncProductAddComponent,
    AsyncProductEditComponent,
    AsyncProfileDetailComponent,
-   AsyncVendedorAddComponent,
-   AsyncVendedorComponent,
+   AsyncProveedorAddComponent,
+   AsyncProveedorEditComponent,
+   AsyncProveedorComponent,
    usuariosComponent,
-   usuariosAddComponent,
-   proveedoresComponent
+   usuariosAddComponent
 } from '../../util/AsyncRoutes';
 
 const AdminPanel = ({ match }) => {
@@ -30,12 +30,13 @@ const AdminPanel = ({ match }) => {
             <Route path={`${match.url}/product-add`} component={AsyncProductAddComponent} />
             <Route path={`${match.url}/product-edit/:type/:id`} component={AsyncProductEditComponent} />
             <Route path={`${match.url}/account`} component={AsyncProfileDetailComponent} />
-            <Route path={`${match.url}/vendedor`} component={AsyncVendedorComponent} />
-            <Route path={`${match.url}/vendedor-add`} component={AsyncVendedorAddComponent} />
-            <Route path={`${match.url}/vendedor-add`} component={AsyncVendedorAddComponent} />
+            <Route path={`${match.url}/vendedor`} component={AsyncProveedorComponent} />
+            <Route path={`${match.url}/vendedor-add`} component={AsyncProveedorAddComponent} />
+            <Route path={`${match.url}/vendedor-edit/:type/:id`} component={AsyncProveedorEditComponent} />
             <Route path={`${match.url}/usuarios-add`} component={usuariosComponent} />
             <Route path={`${match.url}/usuarios`} component={usuariosAddComponent} />
-            <Route path={`${match.url}/proveedores`} component={proveedoresComponent} />
+            
+           
          </Switch>
       </div>
    )
