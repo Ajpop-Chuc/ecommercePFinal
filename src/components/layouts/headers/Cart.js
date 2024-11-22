@@ -63,7 +63,7 @@ class Cart extends React.Component {
 
          createOrder: async (data, actions) => {
             try {
-               // Paso 1: Crear la orden en el backend
+               // Correct the return value to 'id' instead of 'orderId'
                const createOrderResponse = await fetch('http://localhost:4000/create_order', {
                   method: 'POST',
                   headers: {
@@ -72,11 +72,12 @@ class Cart extends React.Component {
                   },
                   body: JSON.stringify({
                      intent: 'capture',
+                     amount: total,
+
                   }),
                });
                const createOrderData = await createOrderResponse.json();
-
-               return createOrderData.orderId; // Devolver el ID de la orden creada
+               return createOrderData.id; // Return the order ID as 'id'
             } catch (error) {
                console.error('Error al crear la orden:', error);
                throw error;
@@ -84,17 +85,18 @@ class Cart extends React.Component {
          },
 
          onApprove: async (data, actions) => {
+            alert(total);
             try {
-               // Paso 2: Completar la orden en el backend
-               const completeOrderResponse = await fetch('/complete_order', {
+               // Use the full backend URL for consistency
+               const completeOrderResponse = await fetch('http://localhost:4000/complete_order', {
                   method: 'POST',
                   headers: {
                      'Content-Type': 'application/json',
                      'Authorization': `${localStorage.getItem('token')}`,
                   },
                   body: JSON.stringify({
-                     orderId: data.orderID,
-                     intent: 'CAPTURE',
+                     order_id: data.orderID,
+                     intent: 'capture',
                   }),
                });
                const completeOrderData = await completeOrderResponse.json();
