@@ -57,6 +57,11 @@ import footerData from './assets/data/footerData';
 import ThemeOptions from './components/ThemeOptions/ThemeOptions';
 import AdminLayout from './components/AdminLayout';
 
+
+// Importar los componentes para proveedores
+import ProveedorEditarForm from './routes/admin-panel/proveedor/proveedor-edit'; // Componente para editar proveedor
+import ProveedoresTabla from './routes/admin-panel/proveedor'; // Componente para listar proveedores
+import ProveedorCrearForm from './routes/admin-panel/proveedor/proveedor-add';
 //const EcommerceLayout = () => 
 
 class App extends React.Component {
@@ -150,6 +155,11 @@ class App extends React.Component {
                            <Route path="/contact-us" component={AsyncContactUsComponent} />
                            <Route path="/account" component={AsyncUserAccountComponent} />
                            <Route path="*" component={AsyncPageNotFoundComponent} />
+
+                           {/* Nuevas rutas para proveedores */}
+                           <Route path="/proveedores/editar/:id" component={ProveedorEditarForm} />
+                           <Route path="/proveedores" component={ProveedoresTabla} />
+                           <Route exact path="/proveedores/nuevo" component={ProveedorCrearForm} />
                         </Switch>
                         <FooterOne data={footerData} />
                         <SweetAlert
