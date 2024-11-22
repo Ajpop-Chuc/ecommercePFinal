@@ -31,7 +31,7 @@ const ProveedorCrearForm = () => {
     e.preventDefault();
     try {
       // Petición al backend para crear un proveedor
-      await axios.post('/api/suppliers', proveedor);
+      await axios.post('http://localhost:4000/api/suppliers', proveedor);
       // Reiniciar el formulario después de un envío exitoso
       setProveedor({
         name: '',

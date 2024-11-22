@@ -18,8 +18,8 @@ const ProveedoresTabla = ({ onEdit }) => {
   useEffect(() => {
     const fetchProveedores = async () => {
       try {
-        const response = await axios.get('/api/suppliers'); // Ruta de tu API
-        setProveedores(response.data); // Asumimos que el backend devuelve un array de proveedores
+        const response = await axios.get('http://localhost:4000/api/suppliers'); // Ruta de tu API
+        setProveedores(response.data.suppliers); // Asumimos que el backend devuelve un array de proveedores
       } catch (error) {
         console.error('Error al obtener proveedores:', error);
       }
@@ -30,7 +30,7 @@ const ProveedoresTabla = ({ onEdit }) => {
   // Eliminar un proveedor
   const deleteProveedor = async (id) => {
     try {
-      await axios.delete(`/api/suppliers/${id}`); // Ruta de eliminación
+      await axios.delete(`http://localhost:4000/api/suppliers/${id}`); // Ruta de eliminación
       setProveedores(proveedores.filter((proveedor) => proveedor._id !== id));
     } catch (error) {
       console.error('Error al eliminar proveedor:', error);
@@ -70,7 +70,7 @@ const ProveedoresTabla = ({ onEdit }) => {
                   onClick={() => deleteProveedor(proveedor._id)}
                   color="secondary"
                 >
-                  Eliminar
+                  Desactivar
                 </Button>
               </TableCell>
             </TableRow>

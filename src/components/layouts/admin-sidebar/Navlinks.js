@@ -39,18 +39,18 @@ export default [
       "child_routes": null
    },
    {
-      "menu_title": "vendedor",
+      "menu_title": "Proveedores",
       "path": "#",
       "icon": "shopping_cart",
       "child_routes": [
          {
             "path": "/admin-panel/admin/vendedor",
-            "menu_title": "vendedor",
+            "menu_title": "Ver proveedor",
             "icon": "arrow_right_alt"
          },
          {
             "path": "/admin-panel/admin/vendedor-add",
-            "menu_title": "vendedorAdd",
+            "menu_title": "Crear proveedor",
             "icon": "arrow_right_alt"
          }
       ]
@@ -77,11 +77,5 @@ export default [
             "icon": "arrow_right_alt"
          }
       ]
-   },
-   {
-      "menu_title": "Proveedores",
-      "path": "/admin-panel/admin/proveedores",
-      "icon": "home",
-      "child_routes": null
    }
 ]   
